@@ -1,0 +1,226 @@
+<?php
+/**
+ * Html pages list
+ * PHP version 5.3.9
+ * @author Nguyen Huu Tam
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/13
+ */
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$session = Globals::getSession();
+
+$modelList_product = new Application_Model_Datagrid();
+$params = $req->getParams();
+$url = $modelList_product->getCreateURL('/menuset/index', $params);
+if (isset($session->backUrl)) {
+	$url = $session->backUrl;
+} else {
+	$session->backUrl = $url;
+}
+
+$header = array();
+$header['pagecode'] = array('title' => 'ページ番号', 'option' => 'class="code" style="min-width:15%;"');
+$header['image'] = array('title' => 'ページイメージ', 'addcontrol'=>'<span class="sort-handle-icon-image">↓</span>', 'hoption'=>'style="width:100px;"', 'option' => 'class="image-link none-border-right icon-left" style="width:80%;"');
+$listData = new Application_Model_Datagrid($this->data, $header, null, 'id="grid"',true);
+/*$list_html = $listData->createList(array('pagecode' => array('action' => '/menu/edit', 'namepost' => 'name', 'value' => 'pagename'),
+										'image' => array('action' => '/menu/edit', 'namepost' => 'name', 'value' => 'pagename')), null, 
+		array('name' => array('name' => 'list-order[]')));*/
+?>
+<form name="frm_menu_list" id="frm_menu_list" method="post" action="/menuset/edit">
+	<?php echo $this->csrf; ?>
+	<div id="page-title">
+		<?php echo $this->escape($this->oldMenusetName); ?>の編集
+	</div>
+    <?php if (!empty($this->message)) : ?>
+	<?php if ($this->success) : ?>
+	    <div style="padding: 0.3em;"> 
+		<ul class="message-section">
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php else : ?>
+	    <div style="padding:0.3em;">				
+		<ul class="error-section">
+		    <li><strong>メニューの登録に失敗しました。</strong></li>
+		    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php endif; ?>
+	<?php endif; ?>
+	<div class="edit-tbl-wrapper">
+		<table class="edit-detail-tbl common-detail-tbl">
+			<?php $indexRow = 1; ?>
+			<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+				<th class="common-tbl-row require" width="100px"><span>メニュー名</span></th>
+				<td width="450px">
+					<input type='text' size="40" id="menusetName" name="menusetName" maxlength="85" 
+						value="<?php echo $this->escape($this->menusetName); ?>" />
+					<input type="text" style="display: none;" />
+                    <span class="guide">85文字以内。</span>
+				</td>				
+			</tr>
+			<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+				<th class="common-tbl-row require" width="100px"><span>言語</span></th>
+				<td width="450px">
+					<?php echo $this->formSelect('language', $this->language, array('style' => 'width:150px'), $this->languages) ?>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="clear"><br></div>
+	<?php if ($this->showAddButton) { ?>
+	<div class="detail-btn">
+		<span class="btn btn-m btn-action"><a id="add_button"><span class="ic-add">ページ新規追加</span></a></span>
+	</div>
+	<?php } ?>
+<label>メニュー名の↓ をドラッグ＆ドロップで表示順の変更が行えます。</label>
+<?php
+//echo $list_html;
+?>
+<div id="gridWidth" style="width:100%"></div>
+<div class="panel panel1 datagrid ipadso_bg" style="border: 1px solid #C3C3C3;">
+	<table
+		id="menu_list"
+		class="datagrid-htable"
+		style="height:<?php echo $this->listHeight + 25; //25: header height ?>px;width:1024px"
+		url="<?php echo $this->urlMenuList; ?>"
+		fitColumns="true"
+		singleSelect="true"
+		striped="true"
+		data-options="view:bufferview,onLoadSuccess:function(){loadSuccess()}">
+		<thead>
+			<tr>
+				<th field="rownumber" width="5%" align="center"></th>
+				<th field="pagecode" width="10%" align="center">ページ番号</th>
+				<th field="image" width="90%">ページイメージ</th>
+			</tr>
+		</thead>
+	</table>
+	<?php if ($this->listHeight == 0) { ?>
+	<div style="width:100%;height:25px;text-align:left;"><div style="margin-top:8px;margin-left:3px">データは登録されていません。</div></div>
+	<?php } ?>
+</div>
+	<input type="hidden" id="target" name="target" value="<?php echo $this->escape($this->id); ?>"/>
+	<div class="btn-container">
+		<div class="edit-btn-article">
+			<span class="btn btn-l btn-action lft"><a href="<?php echo $url ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+			<span class="btn btn-d btn-delete rft"><a href="javascript:void(0)" id="btndelete-bottom" ><span class="ic-delete">削除</span></a></span>
+			<input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="更新" value="更新">					
+		</div>
+	</div>
+</form>
+
+<script>
+    var menuList        = '#menu_list';
+    var formId          = '#frm_menu_list';
+    var btnAdd          = '#add_button';
+    var btnDelete       = '#btndelete-bottom';
+	var btnUpdate		= '#btnsave-bottom';
+	var firstLoad		= true;
+    var isUsed          = <?php echo $this->isUsed; ?>;
+    
+    $(btnAdd).bind('click', function(){
+        $(formId).attr('action', '/menu/add');
+        $(formId).submit();
+    });    
+    
+    $(btnDelete).bind('click', function(){
+        var msg = 'メニューセット「<?php echo $this->escape($this->oldMenusetName); ?>」を削除します。よろしいですか？';
+        if (isUsed > 0) {
+            alert('<?php echo $this->delMenusetUsed; ?>');
+        } else if (confirm(msg)) {
+            $(formId).attr('action', '/menuset/delete/id/' + <?php echo $this->escape($this->id); ?>);
+            $(formId).submit();
+        }
+    });
+	
+	$(btnUpdate).bind('click', function(){
+        $(formId).attr('action', '/menuset/do-edit');
+        $(formId).submit();
+    });
+	
+	window.onresize = function(event) {
+		resizeGrid();
+	};
+	
+	function resizeGrid() {
+		var width = $('#gridWidth').width();
+		$('.datagrid').css('width', width);
+		$('.panel-body').css('width', width);
+		$('.datagrid-view2').css('width', width);
+		$('.datagrid-header').css('width', width);
+		$('.datagrid-view').css('width', width);
+		$('.datagrid-body').css('width', width);
+		setTimeout(function(){$('.datagrid-cell-c1-image').css('width', width - 180);}, 50);		
+	}
+	
+	function loadSuccess() {
+		$('.datagrid-row td[field="image"]').addClass('image-link none-border-right icon-left');
+		
+		setTimeout(function() {
+			$('.sort-handle-icon-image').each (function() {
+				$(this).css('margin-top', ($(this).parent().find('[name="imageHeight"]').val() / 2 - 5) + 'px');
+			});
+			
+			var sortableHelper = function(e, ui) { ui.children().each(function() { $(this).width($(this).width()); }); return ui; };
+			$(menuList).datagrid('getPanel').find('tbody').sortable({
+				items: 'tr:not(.sort-disabled)',
+				helper: sortableHelper,
+				axis : 'y',
+				handle : ".sort-handle-icon-image",
+				activate : function(event, ui) {
+					ui.item.css("background-color", "#ffeaeb");
+				},
+				deactivate : function(event, ui) {
+					ui.item.css("background-color", "");
+				},
+				update : function(event, ui) {
+					updateSortNumber();
+				}
+			});
+		}, 50);
+	}
+	
+	$(function() {
+		$(menuList).datagrid({
+            onSelect: function(rowIndex, rowData) {
+				$(menuList).datagrid('unselectRow', rowIndex);
+            }
+        });
+		
+		resizeGrid();
+	});
+	
+	function updateSortNumber() {
+		$(formId).attr('action', '/menuset/update-menu-order');
+		$(formId).submit();
+	}
+	
+    $(document).ready(function() {	
+		$('.fancybox').fancybox();
+
+		// Change title type, overlay closing speed
+		$(".fancybox-effects-a").fancybox({
+			helpers: {
+				title : {
+					type : 'outside'
+				},
+				overlay : {
+					speedOut : 0
+				}
+			}
+		});		
+    });	
+
+</script>

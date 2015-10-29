@@ -1,0 +1,250 @@
+<?php
+/**
+ * setting form
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/06
+ */
+?>
+<div class="section">
+	<form name="frm_setting" id="frm_setting" method="post" action="" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			アプリ設定
+		</div>
+                <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>アプリ設定の編集に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+                            
+                        <div class="edit-tbl-wrapper">
+                            <span class="lists-from-group"> 連携システムの選択 </span>
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require"><span> 連携システムの選択 </span></th>
+                                                <td width="450px">
+                                                       <?php echo $this->formSelect('linkSystem', $this->data['linkSystem'], null, $this->dataLinkSystem) ?>
+                                                </td>
+                                        </tr>
+                            </table>
+                            <p>&nbsp;</p>
+                            <span class="lists-from-group"> 全般設定 </span>
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>                                        
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require "><span> 管理画面パスワード </span></th>
+                                                <td width="450px">
+                                                    <input  type="text" size="45" maxlength="32" id="pass" name="pass"  value="<?php echo $this->escape($this->data['pass']) ?>" />
+                                                </td>
+                                        </tr>
+										<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 画面の方向 </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('screenOrientation', $this->data['screenOrientation'], null, $this->screenOrientation) ?>
+                                                </td>
+                                        </tr>
+										<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 店員呼出ボタンの表示 </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('useCallStaff', $this->data['useCallStaff'], null, $this->useCallStaff) ?>
+                                                </td>
+                                        </tr>
+										<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> トップページに席番号の表示 </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('dispTableName', $this->data['dispTableName'], null, $this->dispTableName) ?>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 注文ボタンの表示 </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('orderStationFlag', $this->data['orderStationFlag'], null, $this->dataOrderStationFlag) ?>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 割り勘の表示 </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('useWarikan', $this->data['useWarikan'], null, $this->useWarikan) ?>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 自動カートクリア時間（分） </span></th>
+                                                <td>
+                                                        <input type="text"  size="45" id="cartcleartime" name="cartcleartime"   value="<?php echo isset($this->data['cartcleartime']) ? $this->escape($this->data['cartcleartime']) : '' ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> ステータス情報更新間隔（秒） </span></th>
+                                                <td>
+                                                        <input type="text"  size="45" id="ipadStatusUpdateInterval" name="ipadStatusUpdateInterval"   value="<?php echo isset($this->data['ipadStatusUpdateInterval']) ? $this->escape($this->data['ipadStatusUpdateInterval']) : '' ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> おすすめメニューボタン表示 </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('recommendationVisible', $this->data['recommendationVisible'], null, $this->recommendationVisible) ?>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> データ自動更新 </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('automaticUpdate', $this->data['automaticUpdate'], null, $this->automaticUpdate) ?>
+                                                </td>
+                                        </tr>
+								</table>
+								<p>&nbsp;</p>
+								<span class="lists-from-group"> 印刷設定 </span>
+								<table class="edit-detail-tbl common-detail-tbl">
+										<?php $indexRow = 1; ?> 
+										<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> プリンター機種選択 </span></th>
+                                                <td width="450px">
+                                                        <?php echo $this->formSelect('printerType', $this->data['printerType'], null, $this->printerType) ?>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 会計伝票プリンターアドレス </span></th>
+                                                <td>
+                                                        <input type="text"  size="45" id="printerIPAddress" name="printerIPAddress"   value="<?php echo $this->escape($this->data['printerIPAddress']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 会計伝票プリンターポート </span></th>
+                                                <td>
+                                                        <input type="text"  size="45" id="printerPortNo" name="printerPortNo" value="<?php echo $this->escape($this->data['printerPortNo']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 会計伝票の印刷を行う </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('doPrintFlag', $this->data['doPrintFlag'], null, $this->dataDoPrintFlag) ?>
+                                                </td>
+                                        </tr>
+										<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 会計伝票の印刷枚数 </span></th>
+                                                <td>
+                                                        <input type="text"  size="45" id="doPrintCount" name="doPrintCount"  value="<?php echo isset($this->data['doPrintCount']) ? $this->escape($this->data['doPrintCount']) : '' ?>" />
+                                                </td>
+                                        </tr>
+										<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 注文伝票の印刷を行う </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('doOrderPrintFlag', $this->data['doOrderPrintFlag'], null, $this->doOrderPrintFlag) ?>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 注文伝票の印刷時に音声を鳴らす </span></th>
+                                                <td>
+                                                        <?php echo $this->formSelect('doPrintSoundFlag', $this->data['doPrintSoundFlag'], null, $this->dataDoPrintSoundFlag) ?>
+                                                </td>
+                                        </tr>                                        
+                            </table>
+                            <p>&nbsp;</p>
+                            <span class="lists-from-group">   東芝TEC POS端末連携設定   </span>
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>                                        
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> ステーションのアドレス </span></th>
+                                                <td width="450px">
+                                                       <input type="text" size="45" id="stationAddress" value="<?php echo $this->escape($this->data['stationAddress']) ?>" name="stationAddress" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> TCP/IP受信用ポート番号 </span></th>
+                                                <td>
+                                                       <input type="text"  size="45" id="receivePort" name="receivePort" value="<?php echo $this->escape($this->data['receivePort']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> TCP/IP送信用ポート番号 </span></th>
+                                                <td>
+                                                       <input type="text"  size="45" id="sendPort" name="sendPort" value="<?php echo $this->escape($this->data['sendPort']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> ソケット通信リトライ回数 </span></th>
+                                                <td>
+                                                       <input  type="text"  size="45" id="socket_retry" name="socket_retry" value="<?php echo $this->escape($this->data['socket_retry']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> ソケット通信待ち時間 </span></th>
+                                                <td>
+                                                       <input type="text"  size="45" id="socket_waitSec" name="socket_waitSec" value="<?php echo $this->escape($this->data['socket_waitSec']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> スタッフ呼び出し用メニューコード </span></th>
+                                                <td>
+                                                       <input type="text"  size="45" id="staffCallCode" name="staffCallCode" value="<?php echo $this->escape($this->data['staffCallCode']) ?>" />
+                                                </td>
+                                        </tr>
+                                </table>
+                                <p>&nbsp;</p>
+                            <span class="lists-from-group">    スマレジ連携設定    </span>
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>                                        
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 契約ID </span></th>
+                                                <td width="450px">
+                                                       <input type="text"  size="45" id="smaregi_id" name="smaregi_id" value="<?php echo $this->escape($this->data['smaregi_id']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> 連携URL </span></th>
+                                                <td>
+                                                       <input type="text"   size="45" id="smaregi_url" name="smaregi_url" value="<?php echo $this->escape($this->data['smaregi_url']) ?>" />
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span> アクセストークン </span></th>
+                                                <td>
+                                                       <input type="text"   size="45" id="smaregi_at" name="smaregi_at" value="<?php echo $this->escape($this->data['smaregi_at']) ?>" />
+                                                </td>
+                                        </tr>
+                                        
+                                </table>
+                        </div>
+                        <div class="btn-container">
+                                <div class="edit-btn-article">
+                                        <input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="更新" value="更新">					
+				</div>
+                        </div>
+        </form>
+</div>
+
+<script>
+    $('#btnsave-bottom').click(function(){
+        edit();
+    });
+    function edit(){
+//         if (!confirm('<?php //  echo $this->confirmEdit; ?>')) return;
+        $('#frm_setting')[0].action = '/setting/setting';
+        $('#frm_setting').submit();
+    }
+</script>

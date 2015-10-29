@@ -1,0 +1,109 @@
+<?php
+$session = Globals::getSession();
+echo $this->doctype()
+?>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="HandheldFriendly" content="true">
+        <meta name="format-detection" content="telephone=no">
+        <?php //$this->headLink()->appendStylesheet('/css/redmond/jquery-ui-1.8.21.custom.css'); ?>
+        <?php // $this->headLink()->appendStylesheet('/css/layout.css'); ?>
+        <?php // $this->headLink()->appendStylesheet('/css/custom.css'); ?>
+        <?php // $this->headLink()->appendStylesheet('/css/tabs.css'); ?>        
+		<?php // $this->headLink()->appendStylesheet('/js/jquery-easyui-1.3/themes/default/easyui.css'); ?>
+		<?php // $this->headLink()->appendStylesheet('/js/jquery-easyui-1.3/themes/icon.css'); ?>
+
+        <?php $this->headLink()->appendStylesheet('/sp/js/jcrop/css/jquery.Jcrop.min.css'); ?>
+        <?php $this->headLink()->appendStylesheet('/sp/css/list.css'); ?>
+        <?php $this->headLink()->appendStylesheet('/sp/css/pager_list.css'); ?>
+        <?php $this->headLink()->appendStylesheet('/sp/css/jquery-ui.css'); ?>
+
+        <?php echo $this->headLink() ?>
+        
+        <?php $this->headScript()->offsetSetFile(1, '/sp/js/jquery-1.7.2.min.js'); ?>
+        <?php $this->headScript()->offsetSetFile(2, '/sp/js/jquery-ui-1.8.21.custom.min.js'); ?>
+        <?php $this->headScript()->offsetSetFile(3, '/sp/js/jquery-easyui-1.3/jquery.easyui.min.js'); ?>
+        <?php $this->headScript()->offsetSetFile(4, '/sp/js/jquery.cookie.js'); ?>
+        <!--Change language on datagrid-->
+        <?php   $this->headScript()->offsetSetFile(5, '/sp/js/jquery-easyui-1.3/locale/easyui-lang-ja.js'); ?>
+        <?php   $this->headScript()->offsetSetFile(6, '/sp/js/jcrop/js/jquery.Jcrop.min.js'); ?>
+        <?php   $this->headScript()->offsetSetFile(7, '/sp/js/grid-size.js'); ?>
+        <?php $this->headScript()->offsetSetFile(8, '/sp/js/jquery.placeholder.min.js'); ?>
+        <?php   $this->headScript()->offsetSetFile(9, '/sp/js/global.js'); ?>
+        <?php $this->headScript()->offsetSetFile(10, '/sp/js/jquery-easyui-1.3/jquery.datagrid.js'); ?>
+        <?php $this->headScript()->offsetSetFile(11, '/sp/js/jquery-easyui-datagridview/datagrid-bufferview.js'); ?>
+
+        <?php echo $this->headScript(); ?>        
+        <script>
+        $(document).ready(function(){
+
+                // hide #back-top first
+                $("#back-top").hide();
+
+                // fade in #back-top
+                $(function () {
+                        $(window).scroll(function () {
+                                if ($(this).scrollTop() > 100) {
+                                        $('#back-top').fadeIn();
+                                } else {
+                                        $('#back-top').fadeOut();
+                                }
+                        });
+
+                        // scroll body to 0px on click
+                        $('#back-top a').click(function () {
+                                $('body,html').animate({
+                                        scrollTop: 0
+                                }, 800);
+                                return false;
+                        });
+                });
+
+        });
+        </script>
+        
+        <title>iPad セルフオーダー管理画面</title>
+    </head>
+    <body>     
+        <div id="container">
+            <div id="header">
+			<!--<div id="ipad-title">
+				
+			</div>-->
+                        <img style="float: left; margin: 2px 0px 0 5px" src="/images/icon.png" title="" alt="" />
+			<div id="page-name">
+				iPadセルフオーダー<br>管理画面
+			</div>			
+			<div id="logout">
+                <?php echo $session->company_name; ?> (<?php echo $session->company_code; ?>)
+                <br>
+				<a href="/logout" >ログアウト</a>
+			</div>
+		
+            </div>
+            
+            <div id="menu">
+                <?php
+                //--menu
+                    echo $this->render('sp/navigation.phtml');
+                ?>
+                <div class="clr">&nbsp;</div>
+            </div>
+            
+            <div id="content">
+                <?php  echo $this->layout()->content ?>
+            </div>
+            
+            <div id="footer">
+                <div style="float: left">
+                        Copyright (C) <?php echo date('Y'); ?> Kobe Digital Labo, Inc. All rights Reserved.
+                </div>            
+                <div class="clr"></div>
+            </div>
+        </div>
+	<?php //show errors below every input ?>
+	<?php include_once APPLICATION_PATH . '/layouts/scripts/sp/message.phtml'; ?>
+    </body>
+</html>

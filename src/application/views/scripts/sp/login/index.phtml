@@ -1,0 +1,118 @@
+<?php
+/**
+ * Login form
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/26
+ */
+?>
+<script>
+	$(function() {
+		$( "input:submit, a, button").button();
+	});
+</script>
+<form name="frm_login" method="post" onsubmit="checkSaveUser()" action="/login/login">
+<?php echo $this->csrf; ?>
+	<div id="login-ipad-title">
+		<img src="/images/ipad-title.png" title="" alt=""/>
+	</div>
+	<!-- start "login-content error" -->
+	<?php if (!empty($this->message)): ?>
+	    <div class="error">
+			<div class="ui-icon-alert">ログインに失敗しました。</div>
+				    <ul class="error_list" >
+					    <?php foreach ($this->message as $msg):?>
+					    <li> <?php echo $this->escape($msg); ?></li>
+					    <?php endforeach;?>
+				    </ul>
+	    </div>
+	<?php endif;?>
+	<!-- start "login-content" -->
+	<div id="login-content">
+	    <div class="login-row">
+		    <div class="login-label">
+			    お客様ID
+		    </div>
+		    <div class="login-input">
+			    <input class="login-input-text" type="text" size="50" id="txt_name" name="txt_name" />
+		    </div>
+		    <div class="clr">&nbsp;</div>
+	    </div>
+	    <div class="login-row">
+		    <div class="login-label">
+			    店舗CD
+		    </div>
+		    <div class="login-input">
+			    <input class="login-input-text" size="50" id="txt_code" name="txt_code" />
+		    </div>
+		    <div class="clr">&nbsp;</div>
+	    </div>
+	    <div class="login-row">
+		    <div class="login-label">
+			    パスワード
+		    </div>
+		    <div class="login-input">
+			    <input class="login-input-text" type="password" size="50" id="txt_pass" name="txt_pass" />
+		    </div>
+		    <div class="clr">&nbsp;</div>
+	    </div>
+	    <div class="login-row">
+		    <div class="login-label">
+		    </div>
+		    <div class="login-remember">
+			    <input type="checkbox" id="AdministratorRemember" value="1" name="remember">
+			    <label id="rememberText" for="AdministratorRemember">お客様ID・店舗CDを保存する。</label>
+		    </div>
+		    <div class="clr">&nbsp;</div>
+	    </div>
+	</div>
+	<div id="login-button">
+		<input type="submit" value="ログイン" />
+	</div>
+</form>
+
+<script>
+	
+$( document ).ready(function() {
+	var remember = getCookie("rememberUser");
+	if (remember == '1') {
+		$('#txt_name').val(getCookie("customerId"));
+		$('#txt_code').val(getCookie("storeId"));
+		$('#AdministratorRemember').attr('checked', true);
+	} else {
+		$('#txt_name').val('');
+		$('#txt_code').val('');
+	}
+	$('#txt_pass').val('');
+});
+
+function checkSaveUser() {
+	if ($('#AdministratorRemember').is(':checked')) {
+		setCookie("rememberUser", '1', 365);
+		setCookie("customerId", $('#txt_name').val(), 365);
+		setCookie("storeId", $('#txt_code').val(), 365);
+	} else {
+		setCookie("rememberUser", '0', 365);
+		setCookie("customerId", '', 365);
+		setCookie("storeId", '', 365);
+	}
+}
+
+function setCookie(cname,cvalue,exdays) {
+	var d = new Date();
+	d.setTime(d.getTime()+(exdays*24*60*60*1000));
+	var expires = "expires=" + d.toGMTString();
+	document.cookie = cname + "=" + cvalue + "; " + expires + '; path=/';
+}
+
+function getCookie(cname) {
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for(var i = 0; i < ca.length; i++) {
+		var c = $.trim(ca[i]);
+		if (c.indexOf(name)==0) return c.substring(name.length,c.length);
+	}
+	return "";
+}
+</script>

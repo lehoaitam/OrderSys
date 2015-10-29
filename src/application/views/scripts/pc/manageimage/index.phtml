@@ -1,0 +1,216 @@
+<?php
+/**
+ * list product image
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/24
+ */
+?>
+<?php if (!empty($this->message)) : ?>
+    <?php if ($this->success) : ?>
+        <div style="padding: 0.3em;" class="ui-state-highlight ui-corner-all"> 
+            <span style="float: left; margin-right: .3em; height: 15px" class="ui-icon ui-icon-info"></span>
+            <ul id="error_list" class="error_list">
+                <?php foreach ($this->message as $msg): ?>
+                    <li><?php echo $this->escape($msg); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <div class="clear"></div>
+    <?php else : ?>
+        <div style="padding:0.3em;color:red" class="ui-state-error ui-corner-all">
+            <strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong>
+            <span style="float: left; margin-right: .3em;height:15px" class="ui-icon ui-icon-alert"></span>
+            <ul class="error_list">
+                <?php foreach ($this->message as $msg): ?>
+                    <li><?php echo $this->escape($msg); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <div class="clear"></div>
+    <?php endif; ?>
+<?php endif; ?>
+
+<div class="ui-tabs ui-widget ui-widget-content-bg ui-corner-all">    
+    <div class="form-header">商品画像管理</div>
+    <div class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+        <form name="fileupload" id="fileupload" method="post" action="/manageimage/upload" enctype="multipart/form-data">
+            <?php echo $this->csrf; ?>
+            <ul>
+                <li>
+                    <div class="input-area" style="width:100%;">
+                        <div style="float:left;">
+                            <table>
+                                <tr>
+                                    <td valign="top">
+                                        <div class="col-a-form" style="padding-left:5px">
+                                            <label style="color:#004080; background-color:#dfeffc; height:150px;" class="required">商品画像</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div id="p_images">
+                                            <p>
+                                                <label for="p_image_files">
+                                                    <input type="file" id="p_image_file" size="50" name="p_image_file[]" value="" />
+                                                </label>
+                                            </p>
+                                        </div>
+                                        <div class="clear"></div>
+                                        <div class="button">
+                                            <input id="add_file" type="button" class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" value="新規商品画像の追加" />
+                                            <input id="upload" type="button" class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" value="アップロード" />
+                                        </div>
+                                    </td>
+                                </tr>                        
+                            </table>
+                        </div>
+                        <div style="padding-left:10px; float:left;">
+                            <p class="notice"><?php echo $this->notice; ?><br><a href="/help/aboutProductImageSize.pdf" target="_blank" style="text-decoration: underline">詳細はこちら</a></p>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                </li>
+                <li>
+                    <div style="margin-bottom:5px">
+                        <input id="delete_button" type="button" class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" value="削除" />
+                    </div>
+                    <div class="clear"></div>
+                </li>
+                <li>                
+                    <table id="manageimage_list"> </table>
+                    <input type="hidden" id="id_edit" name="id_edit">
+                </li>
+
+            </ul>
+        </form>
+    </div>
+</div>
+<script>
+    var manageimage_list = '#manageimage_list';
+    var frm_image        = '#fileupload';
+    var id_edit          = '#id_edit';
+    
+    var btnDelete       = '#delete_button';
+    var upload          = '#upload';
+
+    $(btnDelete).bind('click', function(){
+        if(getSelections()=='') {
+            alert('<?php echo $this->alertDel; ?>');
+        } else {
+            if (!confirm('<?php echo $this->confirmDel; ?>')) return;
+            $(id_edit).val(getSelections());
+            $(frm_image)[0].action = '/manageimage/delete';
+            $(frm_image).submit();
+        }
+    });
+
+    $(upload).bind('click', function(){
+        var files = $('input[name|="p_image_file[]"]');
+        var isEmptyFile = false;
+        files.each(function(){
+            if ($(this).val() != '') {
+                isEmptyFile = true;
+                return true;
+            }
+        });
+        
+        if (isEmptyFile == true) {
+            if (!confirm('<?php echo $this->confirmAdd; ?>')) return;
+            $(frm_image)[0].action = '/manageimage/upload';
+            $(frm_image).submit();
+        } else {
+            alert('<?php echo $this->alertDel; ?>');
+            return false;
+        }
+    });
+    
+    $(function(){
+        $("#main").css('width', getWidth()+50);
+        $(manageimage_list).datagrid({
+            width: getWidth(),
+            //height: getHeight(),
+            pageSize: 300,
+            pageList: [100,200,300,400,500],
+            pagePosition: 'both',
+            striped: true,
+            rownumbers: true,
+            showFooter: true,
+            fitColumns: true,
+            idField: 'image',
+            url: '<?php echo $this->dataImageList; ?>',  
+            columns:[[
+                    {field:'ck',title:'削除',checkbox:true},                         
+                    {field:'name',title:'プレビュー',
+                        formatter:function(value, rec){
+                            return '<img src="' + rec.thumb + '" width="50px" height="40px">';
+                        }
+                    },
+                    {field:'image',title:'ファイル名',sortable:true},
+                    {field:'product',title:'商品',width:100},
+                    {field:'category',title:'カテゴリ',width:100}
+                ]],
+            pagination:true,
+            rowStyler: function(index,row){
+                return 'vertical-align:top;';
+            }
+        });
+
+        // 新規商品画像の追加
+        var imageDiv = $('#p_images');
+            var i = $('#p_images p').size() + 1;
+            $('#add_file').live('click', function() {
+                if (toggleAddButton() == false) {
+                    return false;
+                }
+                
+                $('<p><label for="p_image_files"><input type="file" name="p_image_file[]" size="50" id="p_image_file_' + i +'" value="" /></label> <a href="#" id="remove_image"><img alt="削除" src="/images/delete.png"></a></p>').appendTo(imageDiv);
+                i++;
+                toggleAddButton();
+                return false;
+            });
+        
+            $('#remove_image').live('click', function() { 
+                if( i > 2 ) {
+                    $(this).parents('p').remove();
+                    i--;
+                    toggleAddButton();
+                }
+                return false;
+            });
+    });
+    
+    function toggleAddButton() {
+        var i = $('#p_images p').size() + 1;
+        var maxInput = <?php echo $this->maxUpload; ?>;
+        if (i >= (maxInput + 1)) {
+            $('#add_file').addClass('ui-state-disabled');
+            return false;
+        } else {
+            $('#add_file').removeClass('ui-state-disabled');
+        }
+        
+        return true;
+    }
+    
+    function getSelections(){
+        var ids = [];
+        var rows = $(manageimage_list).datagrid('getSelections');
+        for(var i=0;i<rows.length;i++){
+            ids.push(rows[i].image);
+        }
+        return (ids.join(','));
+    }
+    
+    function getSelected(){
+        var selected = $(manageimage_list).datagrid('getSelected');
+        if (selected){
+            return(selected.no);
+        }
+    }
+    
+    function selectRecord(id){
+        $(manageimage_list).datagrid('selectRecord',id);
+    }
+
+</script>

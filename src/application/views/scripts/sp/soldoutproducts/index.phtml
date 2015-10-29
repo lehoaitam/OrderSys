@@ -1,0 +1,339 @@
+<?php
+/**
+ * View list product
+ * PHP version 5.3.9
+ * @author nqtrung
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/10/08
+ */
+//---get URL;
+//---list data
+$session = Globals::getSession();
+
+if(isset($session->nameProduct)){
+    unset($session->nameProduct);
+}
+
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$params = $req->getParams();
+
+$data = $this->dataProductList;
+$listData = new Application_Model_Datagrid($data, array());
+$pageNavi_html = $listData->creatPageNavigation();
+$pageLink_html = $listData->creatPageLink();
+
+?>
+<style>
+.datagrid-row {
+    height: 50px;
+}
+</style>
+<form name="frm_soldoutproducts" id="frm_soldoutproducts" method="post" action="">
+    <?php echo $this->csrf; ?>
+    <div id="page-title">
+            品切れ設定
+    </div>
+    <?php if (!empty($this->message)) : ?>
+	<?php if ($this->success) : ?>
+	    <div style="padding: 0.3em;"> 
+		<ul class="message-section">
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php else : ?>
+	    <div style="padding:0.3em;">				
+		<ul class="error-section">
+		    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php endif; ?>
+	<?php endif; ?>
+<?php
+//echo $search_html;
+$itemName = isset($params['item']) ? $this->escape($params['item']) : '';
+$pricegt = isset($params['pricegt']) ?  $this->escape($params['pricegt']) : '';
+$pricelt = isset($params['pricelt']) ?  $this->escape($params['pricelt']) : '';
+$category1_name = isset($params['category']) ?  $this->escape($params['category']) : '';
+
+//---get data Category
+$csv = new Application_Model_Category();
+$data_Categ = $csv->getDataJson1();
+$optionCategory1 = $csv->createOptionCategory($data_Categ['rows'], array('value' => 'code', 'title' => 'name'), $category1_name);
+?>
+    <div id="filter" style="width:100%">
+        <div style="width:100%;height:25px">
+            <a href="javascript:void(0)">
+                <div class="search-tab" style="float:left" id="display-search">
+                    検索条件
+                    <div style="width: 1px; display: block; float: right; margin-top: -5px; height: 25px; background: #fff"></div>
+                </div>
+            </a>
+            <a href="javascript:void(0)">
+                <div class="search-tab" style="float:right" id="display-rowperpage">
+                    表示件数
+                </div>
+            </a>
+        </div>
+        <div id="searchForm" style="width:100%">
+            <table class="data-filter" border="1" width="100%">					
+                    <tr class="odd">
+                        <td class="label" width="100px">商品名</td>
+                        <td><input id="item" maxlength="85" name="item" class="name" type="text" value="<?php echo $itemName; ?>" /></td>
+                    </tr>
+                    <tr class="even">
+                        <td class="label">販売価格</td>
+                        <td><input id="pricegt" name="pricegt" class="price" type="text" maxlength="10"  value="<?php echo $pricegt; ?>" />～<input id="pricelt" name="pricelt" class="price" maxlength="10"  type="text" value="<?php echo $pricelt; ?>" /></td>
+                    </tr>
+                    <tr class="odd">
+                        <td class="label">カテゴリー</td>
+                        <td>
+                            <select id="category" name="category"  class="name">
+                                <?php echo $optionCategory1 ?>
+                            </select>
+                        </td>
+                    </tr>	
+                    <tr class="even">
+                        <td class="label">品切れのみ</td>
+                        <td><input type="checkbox" id="soldout" name="soldout" style="width:13px;margin-left: 3px" <?php echo isset($params['soldout']) ? "checked='checked'" : '' ?>/></td>
+                    </tr>
+            </table>
+            <div class="btn-search">
+                <input class="input-btn" type="button" name="btnSearch" id="btnSearch" value="検索" />
+            </div>
+        </div>
+        <div id="rowperpageForm" style="width:100%">
+            <?php echo $pageNavi_html; ?>
+        </div>
+    </div>
+    <div class="clr">&nbsp;</div>	
+	
+<?php
+    echo $pageLink_html;
+?>
+
+<div id="data-grid">
+    <table class="grid" cellpadding="0" cellspacing="0" border="1" width="100%" >
+        <thead>            
+        </thead>
+        <tbody>
+            <?php if (isset($data['rows']) && count($data['rows']) > 0) { ?>
+            <?php 
+                $position_page = isset($params['page']) ? $params['page'] : 1;
+                $index = 0;
+                if (isset($params['rows'])) {
+                    $index = $params['rows'];
+                } else {
+                    $menuConfig = Globals::getApplicationConfig('optlist');
+                    $index = $menuConfig->list_count;
+                }
+                $index = ($position_page * $index - $index + 1);
+
+                foreach ($data['rows'] as $row) {
+            ?>
+            <tr class="<?php echo $index % 2 == 0 ? 'even' : 'odd' ?>">
+                <td class="icon" field="thumb">
+                    <div id="div_image_product_thumb1" class="edit_img">
+                        <?php
+                            if (isset($row['thumb']) && $row['thumb'] != '' && substr($row['thumb'], strlen($row['thumb']) - 1, 1) != '/') {
+                        ?>
+                        <img width="100px" height="75px" src="<?php echo $this->escape($row['thumb']) ?>" />
+                        <?php } else { ?>
+                        <img width="100px" height="75px" src="/images/no_image_100.png" />
+                        <?php } ?>
+                    </div>
+                    <div style="text-align:left;margin-left:103px">
+                        <?php echo $this->escape($row['menuCode']) ?><br/>
+                        <?php echo $this->escape($row['category1_name']) ?><br/>
+                        <?php echo $this->escape($row['itemName']) ?><br/>
+                        <?php echo $this->escape(Application_Model_Datagrid::formatMoney($row['price'])) ?>
+                    </div>
+                </td>
+                <td width="25px" align="center">
+                    <input type="checkbox" name="chk_check_row[]" id="chk_check_row_<?php echo $this->escape($row['menuCode']) ?>" value="<?php echo $this->escape($row['menuCode']) ?>" <?php echo $row['soldout'] == 0 ? '' : 'checked="true"' ?>/>
+                    <input type="hidden" value="<?php echo $this->escape($row['menuCode']) ?>" name="h_row[]" id="h_row_<?php echo $index ?>">
+                </td>
+            </tr>
+            <?php
+                $index++;
+                }
+            ?>
+            <?php } else { ?>
+            <tr>
+                <td>データは登録されていません。</td>
+            </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+</div>
+ 
+<?php 
+    echo $pageLink_html;
+?>
+ 
+<?php
+    if (count($data) > 0) {
+?>
+<div class="btn-container">
+    <div class="edit-btn-article">
+        <input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="反映" value="反映">
+    </div>
+</div>    
+<?php
+    }
+?>
+
+</form>    
+<div class="clear"></div>
+
+<div style="text-align:center;padding-top:12px"><a href="#top">↑ﾍﾟｰｼﾞﾄｯﾌﾟ</a></div>
+
+<script>
+
+    $('#btnSearch').click(function(){
+        searchSubmit();
+    });
+    function searchSubmit(){
+        var url_search = '';
+        if($('#item').val() != ''){
+            url_search = url_search + '/item/' + $('#item').val();
+        }
+        if($('#pricegt').val() != ''){
+            url_search = url_search + '/pricegt/' + $('#pricegt').val();
+        }
+        if($('#pricelt').val() != ''){
+            url_search = url_search + '/pricelt/' + $('#pricelt').val();
+        }
+        if($('#category').val() != ''){
+            url_search = url_search + '/category/' + $('#category').val();
+        }
+		if($('#soldout').attr('checked') === 'checked'){
+            url_search = url_search + '/soldout/on';
+        }
+        
+        location.href = '/soldoutproducts/index' + url_search;
+    }
+    
+    $('#rows').change(function(){
+        var url_search = '';
+        url_search = '/rows/' + $('#rows').val();
+        location.href = '<?php unset($params['rows']); $params['page'] = 1; echo $listData->getCreateURL('/soldoutproducts/index',$params) ?>'+url_search;
+    });
+    
+    $("#display-search").click(function () {
+        $("#searchForm").toggle();
+        if ($(this).hasClass('search-tab')) {            
+            $(this).attr('class', 'search-tab-selected');
+            $.cookie('CookieKeyVisibleSearchFormItems', 1, {path:'/'});
+        } else {
+            $(this).attr('class', 'search-tab');
+            $.cookie('CookieKeyVisibleSearchFormItems', 0, {path:'/'});
+        }
+        if ($('#display-rowperpage').hasClass('search-tab-selected')) {
+            $("#rowperpageForm").toggle();
+            $('#display-rowperpage').attr('class', 'search-tab');
+            $.cookie('CookieKeyVisibleRowPerPageFormItems', 0, {path:'/'});
+        }
+    });
+    
+    $("#display-rowperpage").click(function () {
+        $("#rowperpageForm").toggle();
+        if ($(this).hasClass('search-tab')) {            
+            $(this).attr('class', 'search-tab-selected');
+            $.cookie('CookieKeyVisibleRowPerPageFormItems', 1, {path:'/'});
+        } else {
+            $(this).attr('class', 'search-tab');
+            $.cookie('CookieKeyVisibleRowPerPageFormItems', 0, {path:'/'});
+        }
+        if ($('#display-search').hasClass('search-tab-selected')) {
+            $("#searchForm").toggle();
+            $('#display-search').attr('class', 'search-tab');
+            $.cookie('CookieKeyVisibleSearchFormItems', 0, {path:'/'});
+        }
+    });    
+       
+    if ($.cookie('CookieKeyVisibleSearchFormItems') == 1)
+    {
+            $('#display-search').attr('class', 'search-tab-selected');
+            $("#searchForm").show();
+    }
+    else
+    {
+            $("#searchForm").hide();
+    }
+    
+    if ($.cookie('CookieKeyVisibleRowPerPageFormItems') == 1)
+    {
+            $('#display-rowperpage').attr('class', 'search-tab-selected');
+            $("#rowperpageForm").show();
+    }
+    else
+    {
+            $("#rowperpageForm").hide();
+    }
+    
+    $('.combo-text').removeAttr('style');
+    $('.combo-text').val('<?php echo $category1_name; ?>');
+    
+
+	$('#btnsave-bottom').click(function() {
+        $('#frm_soldoutproducts')[0].action = '/soldoutproducts/save';
+        $('#frm_soldoutproducts')[0].submit();
+    });
+
+    $(document).ready(function() {	                
+        //---Enter form search.
+                
+         $('#item').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+        $('#pricegt').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+        $('#pricelt').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+        $('#category').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+		
+		$('th.count').css('width', '45px');
+        
+        $('table tr td').on('click', function(e){
+            if(e.target.type=="checkbox")
+            {        
+                if($(this).is(':checked')) $(this).attr('checked', false);
+                else $(this).attr('checked', true);
+                return;
+            }
+            else
+            {
+                if($(this).find('input:checkbox').is(':checked')) 
+                    $(this).find('input:checkbox').attr('checked', false);
+                else
+                    $(this).find('input:checkbox').attr('checked', true);
+            }
+        });
+    });
+
+</script>
+
+

@@ -1,0 +1,96 @@
+<?php
+
+//---get params
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$this->controller = $req->getControllerName(); //---get controler name
+$this->action = $req->getActionName(); //---get action name
+$menu = new Menu(null, null);
+
+$items = $menu->getHeaderNavigation(); 
+
+//---menu
+$modules = array(); //-- controller, action of module;
+
+foreach ($items as $key => $value) {
+    foreach ($value['list'] as $k => $val) {
+        $contrller = explode('_', $k);
+        $action = isset($contrller[1])?$contrller[1]:'index';
+        $modules[$key]['controller'][$contrller[0]] = $contrller[0];
+        $modules[$key]['action'][$action] = $action;
+    }
+    
+}
+
+?>  
+
+    <ul id="main-menu" >
+    <?php
+        //---create menu
+        $sub_menu = array();
+        foreach($items as $path => $item){
+            $class = '';
+            if(  in_array( $this->controller, $modules[$path]['controller']) ){
+                $class = 'current';
+            }
+        ?>
+            <li class="<?php echo $class; ?>" >
+                <a href="/<?php echo $path; ?>"><?php echo $item['name']; ?></a>
+                <?php if (count($item['list']) > 0  && in_array( $this->controller, $modules[$path]['controller'])  ) {
+                        $sub_menu = $item['list'];
+                    ?>
+
+                <?php  } //-- End if ?>
+
+            </li>
+    <?php } //end foreach ?>           
+            <div class="clr">&nbsp;</div>
+    </ul>
+ 
+<?php if ( count($sub_menu) > 1) { ?>
+<div id="sub-menu" >
+    <ul id="sub-menu-product" style="display: block" >
+    <?php
+        //---create menu sub
+        $menu_noDesplay = array(
+            'product'=>array('add'=>'add','edit'=>'edit','import'=>'import','downloadoption'=>'downloadoption'),
+            'menuset'=>array('add'=>'add','edit'=>'edit'),
+            'menu'=>array('add'=>'add','edit'=>'edit'),
+            'category'=>array('add'=>'add','edit'=>'edit','import'=>'import'),
+            'subcomment'=>array('add'=>'add','edit'=>'edit'),
+            'topping'=>array('add'=>'add','edit'=>'edit'),
+            'video'=>array('add'=>'add','edit'=>'edit'),
+            'printergroup'=>array('add'=>'add','edit'=>'edit')
+        );
+        foreach($sub_menu as $k => $page){
+                $controller_tamp = explode('_', $k);
+                $class = '';
+                if( isset($page['path'])){
+                    
+                    if ( $controller_tamp[0] == $this->controller
+                            && isset($controller_tamp[1]) &&  ( $this->action == $controller_tamp[1] ) )
+                    {
+                        $class = 'current';
+                    }else if( $controller_tamp[0] == $this->controller &&  isset($menu_noDesplay[$controller_tamp[0]][$this->action]) &&  $controller_tamp[1] == 'index'){
+                        $class = 'current';
+                    }
+                    
+                    //----exception controler menu, action edit-top-view
+                    if( $controller_tamp[0] == 'menuset' && $this->controller == 'menu' ){
+                        $class = 'current';
+                    }
+                    
+                    //---exception controler sumareji
+                    if( $controller_tamp[0] == 'product' && ( $this->controller == 'sumareji' || $this->controller == 'tecreji' ) ){
+                        $class = 'current';
+                    }
+    ?>
+                    <li class="<?php echo $class; ?>" >
+                        <a href="<?php echo $page['path']; ?>" target="_self" tabindex="-1"><?php echo $page['name'];?></a>
+                    </li>
+    <?php      }
+
+       } //-- end foreach ?>
+    <div class="clr">&nbsp;</div>
+    </ul>
+</div>
+<?php } ?>

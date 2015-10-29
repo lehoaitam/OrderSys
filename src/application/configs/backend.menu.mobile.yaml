@@ -1,0 +1,15 @@
+product:
+    name: 商品
+    list:
+        - product_index:
+            name: 商品一覧
+            path: /product
+            key: product
+        - soldoutproducts_index:
+            name: 品切れ設定
+            path: /soldoutproducts
+            key: soldoutproducts
+        - recommendproducts_index:
+            name: おすすめ設定
+            path: /recommendproducts
+            key: recommendproducts

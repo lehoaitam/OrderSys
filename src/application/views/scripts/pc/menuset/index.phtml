@@ -1,0 +1,215 @@
+<?php
+/**
+ * Menuset list
+ * PHP version 5.3.9
+ * @author Nguyen Huu Tam
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2013/02/28
+ */
+$session = Globals::getSession();
+if(isset($session->backUrl)){
+    unset($session->backUrl);
+}
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$params = $req->getParams();
+$lastParams = array();
+foreach ($params as $key => $value) {
+	if ($key !== 'controller' && $key !== 'action' && $key !== 'module') {
+		$lastParams[] = $key . '/' . $value;
+	}
+}
+
+$header = array();
+$header['name'] = array('title' => 'メニュー名','addcontrol'=>'<span class="sort-handle-icon">↓</span>', 'option' => 'class="text none-border-right" style="min-width:90%;"');
+$listData = new Application_Model_Datagrid($this->data, $header, null, 'id="grid"');
+$pageNavi_html = $listData->creatPageNavigation();
+
+$pageLink_html = $listData->creatPageLink();
+$list_html = $listData->createList(array('name' => array('action' => '/menuset/edit', 'namepost' => 'name', 'value' => 'id')), null, 
+		array('id' => array('name' => 'list-order[]')));
+?>
+
+<form name="frm_menuset_list" id="frm_menuset_list" method="post" action="/menuset/do-add">
+	<div id="csrfMain"><?php echo $this->csrf; ?></div>
+	<div id="page-title">
+           メニュー一覧
+	</div>
+	<?php if (!empty($this->message)): ?>
+		<div style="padding: 0.3em;"> 
+		    <ul class="message-section">
+			<?php foreach ($this->message as $msg): ?>
+			    <?php if (!is_array($msg)) : ?>
+				<li><?php echo $this->escape($msg); ?></li>
+			    <?php endif; ?>
+			<?php endforeach; ?>
+		    </ul>
+		</div>
+		<div class="clear"></div>
+	    <?php endif; ?>
+	<div class="detail-btn">
+		<span class="btn btn-m btn-action">
+			<a id="copy_button"><span class="ic-add">コピーして追加</span></a>
+			<a id="add_button"><span class="ic-add">新規追加</span></a>			
+		</span>
+	</div>
+	<div class="clear"></div>	
+<?php
+echo $pageNavi_html;
+echo $pageLink_html;
+?>
+<label>メニューの横の「↓」 をドラッグ＆ドロップする事で表示順の変更が行えます。<br/>
+（順序を変更した場合は、他メニューへのリンク先も変わりますので、他メニューへのリンクを使用している場合はご注意ください。）</label>
+<?php
+foreach ($this->last_data as $hidden) {
+	echo '<input type="hidden" name="list-order[]" value="' . $hidden . '">';
+}
+echo $list_html;
+?>
+<input type="hidden" name="lastURL" value="<?php echo implode('/', $lastParams); ?>">
+<input type="hidden" name="oldMenusetId" value="" id="old_menuset_id">
+</form>
+
+<div id="overlay">
+	<div class="dialog">
+		<div class="dialog-title">
+			 コピーして追加
+		</div>
+		<div class="dialog-content">
+			<div id="copy_message" style="padding-bottom: 15px;">
+				<ul class="error-section">
+					<li><strong>メニューの登録に失敗しました。</strong></li>
+					<li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				</ul>
+			</div>
+			 <p>コピー元メニューにて指定したメニューを、コピーして新規追加します。</p>
+			 <form name="frm_copy" id="frm_copy" method="post" action="/menuset/do-copy">
+				<div id="csrfCopy"><?php echo $this->csrf; ?></div>
+				<div class="dlg-content-row">
+					<span class="dlg-content-left">コピー元メニュー</span>
+					<span class="dlg-content-right">
+						<select id="menusetList" name="menusetList">
+							<?php foreach ($this->data_copy['rows'] as $row) : ?>
+							<option value="<?php echo $row['id'] ?>"><?php echo $this->escape($row['name']) ?></option>
+							<?php endforeach; ?>
+						</select>
+					</span>
+				</div>
+				<div class="dlg-content-row">
+					<span class="dlg-content-left">メニュー名称</span>
+					<span class="dlg-content-right">
+						<input type='text' size="20" id="menusetName" name="menusetName" maxlength="85" value="" />
+						<input type="text" style="display: none">
+					</span>
+				</div>
+			 </form>
+		</div>
+		<div class="dialog-buttons">
+		   <a id="dlg_cancel_button"><span class="ic-cancel">閉じる</span></a>
+		   <a id="dlg_copy_button"><span class="ic-add">追加</span></a>
+		</div>
+	</div>
+</div>
+
+<div class="clear"></div>
+
+<script>
+    var menusetGrid         = '#menuset-grid';
+    var formId              = '#frm_menuset_list';
+    var tableMenusetGrid    = '#grid';
+    var btnCopy             = '#copy_button';
+    var btnAdd              = '#add_button';
+    var btnSaveOrder        = '#save_order_button';
+    var oldMenusetId       = '#old_menuset_id';
+
+    $('#rows').change(function(){
+        var url_search = '';
+        url_search = '/rows/' + $('#rows').val();
+        location.href = '<?php unset($params['rows']); $params['page'] = 1; echo $listData->getCreateURL('/menuset/index',$params) ?>'+url_search;
+    });
+	
+	$(btnCopy).bind('click', function(){
+		$('#copy_message').hide();
+		$('#menusetName').val($('#menusetList option:selected').text() + '（コピー）');
+		$('#frm_copy .error-message').remove();
+		$('#overlay').show();
+	});
+	
+	$("#menusetList").change(function() {
+		$('#menusetName').val($(this).children(':selected').text() + '（コピー）');    
+	});
+	
+	$('#dlg_cancel_button').bind('click', function(){
+		$('#overlay').hide();
+	});
+
+	$('#dlg_copy_button').bind('click', function(){
+		if ($('#dlg_copy_button').attr('disabled') != null) {
+			return;
+		}
+		$('#dlg_copy_button').attr('disabled', 'disabled');
+		$.ajax({
+			type: "POST",
+			data: $('#frm_copy').serialize(),
+			url: '/menuset/do-copy',
+			success: function(response) {
+				if (response.error != undefined) {
+					$('#csrfMain').html('<input type="hidden" name="' + response.key + '" value="' + response.token + 
+							'" /><input type="hidden" name="' + response.formid + '" value="' + response.key + '" />');
+					$('#csrfCopy').html($('#csrfMain').html());
+					
+					$('#copy_message').show();
+					$('#frm_copy .error-message').remove();
+					
+					$.each(response.error, function() {
+						$.each(this, function(k, v) {
+							$('#' + k).parent().append('<div class="error-message">' + v + '</div>');
+						});
+					});
+					$('#dlg_copy_button').removeAttr('disabled');
+				} else {
+					window.location.href = '/menuset/copy-completed';
+				}
+			}
+		});
+	});
+	
+    $(btnAdd).bind('click', function(){
+        $(formId).attr('action', '/menuset/add');
+        $(formId).submit();		
+    });
+
+    $(btnSaveOrder).bind('click', function(){
+        if (confirm('メニューの順を変更します。よろしいですか？')) {
+            $(formId).attr('action', '/menuset/update-order');
+            $(formId).submit();
+        }
+    });
+	
+	$(function() {
+		$("*").dblclick(function(e){
+			e.preventDefault();
+		});
+		var sortableHelper = function(e, ui) { ui.children().each(function() { $(this).width($(this).width()); }); return ui; };
+
+		$(tableMenusetGrid + " tbody").sortable({
+			helper: sortableHelper,
+			axis : 'y',
+			handle : ".sort-handle-icon",
+			activate : function(event, ui) {
+				ui.item.css("background-color", "#ffeaeb");
+			},
+			deactivate : function(event, ui) {
+				ui.item.css("background-color", "");
+			},
+			update : function(event, ui) {
+                            $(oldMenusetId).val($(ui.item).find('input[name="list-order[]"]').first().val())
+                            updateSortNumber();
+			}
+		});
+	});
+	
+	function updateSortNumber() {
+		$(formId).attr('action', '/menuset/update-order');
+		$(formId).submit();
+	}
+</script>

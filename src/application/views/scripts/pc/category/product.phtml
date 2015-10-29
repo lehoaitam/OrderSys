@@ -1,0 +1,173 @@
+<?php
+/**
+ * View category list
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/23
+ */
+?>
+<div class="ui-tabs ui-widget ui-widget-content-bg ui-corner-all">    
+    <div class="form-header">商品一覧（カテゴリ種別：<?php echo $this->kind;?>、カテゴリコード：<?php echo $this->code;?>）</div>
+    <div class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+        <form name="frm_product" id="frm_product" method="post">
+                <?php //echo $this->csrf; ?>
+                <table id="product_list"> </table>
+           </form>
+    </div>
+</div>
+<script>
+    var product_list   = '#product_list';
+    var frm_product    = '#frm_product';
+
+    var yesValue = 'はい';
+    var noValue = 'いいえ';
+    
+    $(function(){
+        $("#main").css('width', getWidth()+50);
+        $(product_list).datagrid({
+            width: getWidth(),
+            height: getHeight(),
+            pageSize: 300,
+            pageList: [100,200,300,400,500],
+            pagePosition: 'both',
+            rownumbers:true,
+            showFooter:true,
+            idField:'menuCode',
+            url:'<?php echo $this->dataProductList; ?>',
+            frozenColumns:[[                           
+                {field:'no',title:'No',width:35,align:'right',sortable:true,order:'asc'},
+                {field:'menuCode',title:'商品コード',width:80,sortable:true,order:'asc',align:'right'},
+                {field:'image',title:'商品イメージ',width:120,
+                    formatter:function(value, rec){
+                        if (value != '') {
+                            return '<img src="' + rec.thumb + '" width="50px" height="40px">' + value;
+                        } else {
+                            return '';
+                        }
+                    }
+                },
+                {field:'itemName',title:'商品名',width:140}
+            ]],
+            columns:[[
+                {field:'price',title:'商品価格',width:60,align:'right',
+                    formatter:function(value,rec){
+                        return parseInt(value);
+                    }
+                },
+                {field:'subprice',title:'商品価格（サブ)',width:100,align:'right',
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : parseInt(value);
+                    }
+                },                            
+                {field:'category1_name',title:'メインカテゴリ１',width:105},
+                {field:'category2_name',title:'メインカテゴリ２',width:105},
+                {field:'suggest1',title:'関連商品１',width:70,align:'right'},
+                {field:'suggest2',title:'関連商品２',width:70,align:'right'},
+                {field:'suggest3',title:'関連商品３',width:70,align:'right'},
+                {field:'adLink',title:'商品リン',width:160},
+                {field:'desc',title:'商品説明',width:160},
+                {field:'other1',title:'その他１',width:60},
+                {field:'other2',title:'その他２',width:60},
+                {field:'isComment',title:'コメントか否か',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? noValue : yesValue;
+                    }
+                },
+                {field:'isSub',title:'サブメニューか否か',width:120,
+                    formatter:function(value,rec){
+                        return (value == 0) ? noValue : yesValue;
+                    }
+                },
+                {field:'isSet',title:'セットメニューか否か',width:130,
+                    formatter:function(value,rec){
+                        return (value == 0) ? noValue : yesValue;
+                    }
+                },
+                {field:'SCP1',title:'サブメニュー１',width:90,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP2',title:'サブメニュー２',width:90,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP3',title:'サブメニュー３',width:90,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP4',title:'サブメニュー４',width:90,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP5',title:'セットメニュー１',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP6',title:'セットメニュー２',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP7',title:'セットメニュー３',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP8',title:'セットメニュー４',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP9',title:'セットメニュー５',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP10',title:'セットメニュー６',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP11',title:'セットメニュー７',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'SCP12',title:'セットメニュー８',width:110,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'startTime',title:'取扱い開始時刻',width:100,
+                    formatter:function(value,rec){
+                        if (value!='') {
+                            return value.substring(0,2)+'時'+ value.substring(4,2) + '分';
+                        }
+                    }
+                },
+                {field:'endTime',title:'取扱い終了時刻',width:100,
+                    formatter:function(value,rec){
+                        if (value!='') {
+                            return value.substring(0,2)+'時'+ value.substring(4,2) + '分';
+                        }
+                    }
+                },
+                {field:'PrinterIP',title:'プリンタのIP',width:100},
+                {field:'PrinterPort',title:'プリンターポート',width:110,align:'right'}
+            ]],
+            pagination:true,
+            rowStyler: function(index,row){
+                return 'vertical-align:top;';
+            }
+        });
+    });
+</script>
+
+
+

@@ -1,0 +1,170 @@
+<?php
+/**
+ * Add subcomment form
+ * PHP version 5.3.9
+ * @author Nguyen Dinh Bao
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/04/22
+ */
+?>
+<form name="frm_add" id="frm_add" method="post" action="/subcomment/add" enctype="multipart/form-data">    
+    <?php echo $this->csrf; ?>
+    <div id="page-title">
+        新規カスタムオーダー登録
+    </div>
+
+    <?php if (!empty($this->message)) : ?>
+            <?php if ($this->success) : ?>
+                <div style="padding: 0.3em;"> 
+                    <ul class="message-section">
+                        <?php foreach ($this->message as $msg): ?>
+                            <?php if (!is_array($msg)) : ?>
+                                <li><?php echo $this->escape($msg); ?></li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            <?php else : ?>
+                <div style="padding:0.3em;">				
+                    <ul class="error-section">
+                        <li><strong>カスタムオーダーの登録に失敗しました。</strong></li>
+                        <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+                        <?php foreach ($this->message as $msg): ?>
+                            <?php if (!is_array($msg)) : ?>
+                                <li><?php echo $this->escape($msg); ?></li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            <?php endif; ?>
+    <?php endif; ?>
+
+    <?php
+    //$prod_name = isset($params['prod_code']) ? trim($params['prod_code']) : '';
+    //---get data Category
+    $csv = new Application_Model_Index();
+    $data_Prod = $csv->getDataJson();
+    ?>
+    <input type="hidden" id="no" name="no" value="<?php echo $this->escape($this->no); ?>" />        
+    <div class="detail-tbl-wrapper">
+        <table class="data-filter" border="1" width="100%">					
+            <tr class="odd">
+                <td class="label require" style="width: 300px"><span>カスタムオーダーグループ名</span></td>
+                <td><input id="guidance" name="guidance" class="name" style="width:420px" type="text" value="<?php if (isset($this->data['guidance'])) { echo $this->escape($this->data['guidance']);}?>" />
+                    <span class="guide">30文字以内 例）飲み方</span>
+                </td>
+            </tr>					
+        </table>				
+    </div>
+
+    <div class="clr">&nbsp;</div>
+
+    <div id="data-grid">
+        <table id="CustomerOrder" class="grid" cellpadding="0" cellspacing="0" border="1" width="100%">
+            <thead>
+                <tr>
+                    <th style="width: 100px !important"></th>						
+                    <th>カスタムオーダー名</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php                
+                    $row = isset($_SESSION['num_sel_prod']) ? $_SESSION['num_sel_prod'] : Globals::getApplicationConfig('subcomment')->init_list;                  
+                    for($i=1; $i<=$row; $i++){
+                        if($data_Prod['rows']=='') {
+                            $optionProd = '';                          
+                        }
+                        else {
+                            if(isset($this->data['menu'.$i])){  
+                                $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), $this->escape($this->data['menu'.$i]));                 
+                            }
+                            else {
+                                $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');                   
+                            }
+                        }
+                        $class = ($i%2) ? 'odd' : 'even';
+                        echo '<tr class="'.$class.'">
+                                <td class="sorting_1">'.$i.'</td>
+                                <td class="">                        
+                                    <select id="menu'.$i.'" name="menu'.$i.'"  class="name">
+                                        <option value=""></option>
+                                        '.$optionProd.'
+                                    </select>
+                                    <span class="guide">商品を選択してください。</span>
+                                </td>
+                            </tr>';                    
+                    }                                    
+                ?>                   
+            </tbody>									
+        </table>				
+    </div>	        
+    <div>		
+        <input type="button" id="AddCustomOrder" onclick="addRow()" value="1レコード追加" />
+    </div>
+
+    <div class="button-group-form addBtn">				      
+        <input id="btnsave" type="button" class="input_btn" role="button" value="登録" />
+    </div>    
+</form>
+<?php unset($_SESSION['num_sel_prod']); ?>
+<script>
+    var count = <?php echo $row+1 ?>;
+
+    $(document).ready(function() {
+        $('table#CustomerOrder').dataTable({
+            'bFilter': false,
+            'bInfo': false,
+            'bSort': false,
+            'bPaginate': false,
+            "oLanguage": {
+                "sEmptyTable": "カスタムオーダーグループは登録されていません。"
+            }
+        });
+        
+        if(count == <?php echo Globals::getApplicationConfig('subcomment')->max_list+1 ?>){
+            document.getElementById("AddCustomOrder").disabled = true;
+        }
+        // Add initial row
+        //addRow();
+    } );
+    
+    function addRow() {
+        <?php
+            if($data_Prod['rows']!='') {
+                $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+            }
+            else {
+                $optionProd = '';
+            }
+        ?>
+        $('table#CustomerOrder').dataTable().fnAddData( [				
+            '<div style="text-align: center">'+count+'</div>',
+            '<select id="menu' + count + '" name="menu' + count + '"  class="name"><option value=""></option><?php echo $optionProd ?></select><span class="guide">商品を選択してください。</span>'
+        ] );       
+        count++;
+        if(count == <?php echo Globals::getApplicationConfig('subcomment')->max_list+1 ?>){
+            document.getElementById("AddCustomOrder").disabled = true;
+        }
+    }
+    
+    function deleteRow (index) {
+        alert(index);
+        if (count != 1) {
+            $("table#CustomerOrder").dataTable().fnDeleteRow(index);
+            count--;
+        }
+    }
+
+    //Get data fill suggest1 combobox
+    var frm_add = ('#frm_add');
+    var btnsave = ('#btnsave');
+
+    $(btnsave).bind('click', function(){
+        //if (!confirm('<?php echo $this->confirmAdd; ?>')) return;
+        $(frm_add)[0].action = '/subcomment/addexecute';
+        $(frm_add).submit();
+    });
+
+</script>

@@ -1,0 +1,92 @@
+<?php
+/**
+ * import product
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/26
+ */
+?>
+<?php
+    $req = Zend_Controller_Front::getInstance()->getRequest();
+    $session = Globals::getSession();
+    $modelList_product = new Application_Model_Datagrid();
+    $params = $req->getParams();
+    $url = $modelList_product->getCreateURL('/product/index',$params);
+    if(isset($session->backUrl)){
+        $url = $session->backUrl;
+    }else{
+        $session->backUrl = $url;
+    }
+
+    ?>
+<div class="section">
+	<form name="frm_download" id="frm_download" method="post" action="" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			商品データダウンロード
+		</div>
+                <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>データダウンロードに失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+                        <div class="edit-tbl-wrapper">
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row " width="100px"><span>文字コード</span></th>
+                                                <td width="450px">
+                                                        <label for="download_type-sjis"><input type="radio" <?php echo ($this->data['download_type'] == 'SJIS')?'checked="checked"':''; ?>  value="SJIS" id="download_type-sjis" name="download_type">SHIFT-JIS</label>&nbsp;&nbsp;
+                                                        <label for="download_type-utf8"><input type="radio" <?php echo ($this->data['download_type'] == 'UTF-8')?'checked="checked"':''; ?> value="UTF-8" id="download_type-utf8" name="download_type">UTF-8</label>                                                
+                                                        <input type="hidden" id="download_type_utf8" name="download_type_utf8" >
+                                                        <span class="guide">【SHIFT-JIS】<br/>
+                                                                   ・ EXCEL等のソフトで編集する場合はこちらを選択してください。</span>
+                                                </td>
+                                        </tr>
+                                </table>
+                        </div>
+                        <div class="btn-container">
+                            <div class="edit-btn-article">
+                                    <!--<input type="submit" class="input_btn lft" alt="一覧に戻る" value="一覧に戻る">-->
+                                    <span class="btn btn-l btn-action lft"><a href="<?php echo $url; ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+                                    <input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="ダウンロード" value="ダウンロード" onclick="downloadCsv()">					
+                            </div>
+                        </div>
+        </form>
+</div>
+<script>
+    var frm_download = '#frm_download';
+    
+    function downloadCsv() {
+        $(frm_download).attr('action', '/product/download-csv');
+		//must add [0] to disable anti-double-click on submit button
+        $(frm_download)[0].submit();
+    }
+
+</script>
+
+
+

@@ -1,0 +1,25 @@
+<?php	
+	if (!empty($this->message) && is_array($this->message)) {
+		foreach ($this->message as $msg) {
+			if (is_array($msg) && count($msg) > 0) {
+				$keys = array_keys($msg);
+				echo '<input type="hidden" name="sysInputMessageKey[]" value="' . $keys[0] . '">' . "\n";
+				echo '<input type="hidden" name="sysInputMessageValue[]" value="' . $this->escape($msg[$keys[0]]) . '">' . "\n";
+			}
+		}
+	}
+?>
+
+<script>
+$( document ).ready(function() {
+	var index = 0;
+	$('input[name="sysInputMessageKey[]"]').each(function() {
+		var key = $(this).val();
+		var message = $('input[name="sysInputMessageValue[]"]').eq(index).val();
+		var err = $('<div class="error-message"></div>');
+		err.text(message);
+		$('[name="' + key + '"]').parent().append(err);
+		index++;
+	});
+});
+</script>

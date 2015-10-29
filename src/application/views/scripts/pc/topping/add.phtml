@@ -1,0 +1,188 @@
+<?php
+/**
+ * Add topping group
+ * PHP version 5.3.9
+ * @author Nguyen Dinh Bao
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/04/23
+ */
+?>
+<form name="frm_add" id="frm_add" method="post" action="/topping/add" enctype="multipart/form-data">    
+    <?php echo $this->csrf; ?>
+    <div id="page-title">
+        新規トッピンググループ登録
+    </div>
+
+    <?php if (!empty($this->message)) : ?>
+        <?php if ($this->success) : ?>
+            <div style="padding: 0.3em;"> 
+                <ul class="message-section">
+                    <?php foreach ($this->message as $msg): ?>
+                        <?php if (!is_array($msg)) : ?>
+                            <li><?php echo $this->escape($msg); ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <div class="clear"></div>
+        <?php else : ?>
+            <div style="padding:0.3em;">				
+                <ul class="error-section">
+                    <li><strong>トッピンググループの登録に失敗しました。</strong></li>
+                    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+                    <?php foreach ($this->message as $msg): ?>
+                        <?php if (!is_array($msg)) : ?>
+                            <li><?php echo $this->escape($msg); ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <div class="clear"></div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php
+    //---get data Category
+    $csv        = new Application_Model_Index();
+    $data_Prod  = $csv->getDataJson();
+    ?>
+    <input type="hidden" id="itemToppingGroupId" name="itemToppingGroupId" value="<?php echo $this->escape($this->itemToppingGroupId); ?>" />        
+    <div class="detail-tbl-wrapper">
+        <table class="data-filter" border="1" width="100%">					
+            <tr class="odd">
+                <td class="label require" style="width: 300px"><span>トッピンググループ名</span></td>
+                <td>
+                    <input id="itemToppingGroupName" name="itemToppingGroupName" class="name" style="width:420px" type="text" value="<?php if (isset($this->data['itemToppingGroupName'])) { echo $this->escape($this->data['itemToppingGroupName']);} ?>" />
+                    <span class="guide">30文字以内。</span>
+                </td>
+            </tr>
+            <tr class="even">
+                <td class="label" style="width: 300px"><span>トッピング選択条件</span></td>
+                <td>
+                    <label>必須選択数</label>
+                    <input id="min" name="min" maxlength="3" class="name selection" type="text" value="<?php if (isset($this->data['min'])) { echo $this->escape($this->data['min']); } ?>" />
+                    <label>上限選択数</label>
+                    <input id="max" name="max" maxlength="3" class="name selection" type="text" value="<?php if (isset($this->data['max'])) { echo $this->escape($this->data['max']); } ?>" />
+                    <span class="guide">トッピングの必須選択数と、上限選択数(最大999点)を指定します。<br/>
+					必須選択数が未入力の場合は0となり、上限数が未入力の場合は最大の999となります。</span>
+                </td>
+            </tr>
+        </table>				
+    </div>
+
+    <div class="clr">&nbsp;</div>
+
+    <div id="data-grid">
+        <table id="ToppingGroup" class="grid" cellpadding="0" cellspacing="0" border="1" width="100%">
+            <thead>
+                <tr>
+                    <th style="width: 100px !important"></th>						
+                    <th>トッピング名</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $row = isset($_SESSION['num_sel_prod2']) ? $_SESSION['num_sel_prod2'] : Globals::getApplicationConfig('subcomment')->init_list;  
+                
+                for ($i = 1; $i <=$row; $i++) {
+                    if ($data_Prod['rows'] == '') {
+                        $optionProd = '';
+                    } else {
+                        if (isset($this->data['menu' . $i])) {
+                            $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), $this->escape($this->data['menu' . $i]));
+                        } else {
+                            $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+                        }
+                    }
+                    $class = ($i % 2) ? 'odd' : 'even';                    
+                    echo '<tr class="' . $class . '">
+                            <td class="sorting_1">' . $i . '</td>
+                            <td class="">                        
+                                <select id="menu' . $i . '" name="menu' . $i . '"  class="name">
+                                    <option value=""></option>
+                                    ' . $optionProd . '
+                                </select>
+                                <span class="guide">商品を選択してください。</span>
+                            </td>
+                        </tr>';
+                }
+                ?>                   
+            </tbody>									
+        </table>				
+    </div>	        
+    <div>		
+        <input type="button" id="AddTopping" onclick="addRow()" value="1レコード追加" />
+    </div>
+
+    <div class="button-group-form addBtn">				      
+        <input id="btnsave" type="button" class="input_btn" role="button" value="登録" />
+    </div>    
+</form>
+<?php unset($_SESSION['num_sel_prod2']); ?>
+<script>
+    $(document).ready(function() {
+        $("#min, #max").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) || 
+                // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    var count = <?php echo $row + 1;  ?>;
+
+    $(document).ready(function() {
+        $('table#ToppingGroup').dataTable({
+            'bFilter': false,
+            'bInfo': false,
+            'bSort': false,
+            'bPaginate': false,
+            "oLanguage": {
+                "sEmptyTable": "トッピンググループは登録されていません。"
+            }
+        });
+        
+        if(count == <?php echo Globals::getApplicationConfig('subcomment')->max_list ?>){
+            document.getElementById("AddTopping").disabled = true;
+        }
+        // Add initial row
+        //addRow();
+    } );
+    
+    function addRow() {
+        <?php
+        if ($data_Prod['rows'] != '') {
+            $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+        } else {
+            $optionProd = '';
+        }
+        ?>                
+        $('table#ToppingGroup').dataTable().fnAddData( [				
+            '<div style="text-align: center">'+count+'</div>',
+            '<select id="menu' + count + '" name="menu' + count + '"  class="name"><option value=""></option><?php echo $optionProd ?></select><span class="guide">商品を選択してください。</span>'
+        ] );       
+        count++;
+        if(count == <?php echo Globals::getApplicationConfig('subcomment')->max_list ?>){
+            document.getElementById("AddTopping").disabled = true;
+        }
+    }
+
+    //Get data fill suggest1 combobox
+    var frm_add = ('#frm_add');
+    var btnsave = ('#btnsave');
+
+    $(btnsave).bind('click', function(){
+        //if (!confirm('<?php echo $this->confirmAdd; ?>')) return;
+        $(frm_add)[0].action = '/topping/addexecute';
+        $(frm_add).submit();
+    });
+</script>

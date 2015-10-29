@@ -1,0 +1,287 @@
+<?php
+/**
+ * Add product form
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/18
+ */
+?>
+<?php
+    //---get data Category
+    $csv = new Application_Model_Category();
+    $data_Categ = $csv->getDataJson1();
+    $optionCategory1   = $csv->createOptionCategory($data_Categ['rows'],array('value'=>'code','title'=>'name'),isset($this->data['category1_code'])?$this->escape($this->data['category1_code']):'','');
+
+    //---get data Topping
+    $csv = new Application_Model_Topping();
+    $data_Topping = $csv->getData();
+    $optionTopping   = $csv->createOptionToppiong($data_Topping,array('value'=>'itemToppingGroupId','title'=>'itemToppingGroupName'),isset($this->data['itemToppingGroupId'])?$this->escape($this->data['itemToppingGroupId']):'','');
+    
+	//---get data Product
+    $data_Product = $this->indexModel->getDataJson();
+	$optionSuggest1Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+	$optionSuggest2Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+	$optionSuggest3Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+?>
+
+<div class="section">
+	<form name="frm_add" id="frm_add" method="post" action="/product/add" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			新規商品登録
+		</div>
+		<?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+			    <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>商品の登録に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+        <div class="btn-container">
+			<div class="edit-btn-article">
+				<input id="btnsave" type="button" class="input_btn btnsave" role="button" value="登録" />
+			</div>
+		</div>
+		<div class="edit-tbl-wrapper">
+			<table class="edit-detail-tbl common-detail-tbl extenion">
+				<?php $indexRow = 1; ?>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require"><span>商品ID</span></th>
+					<td width="650px">
+						<input type="text" style="width:80px" id="menuCode" name="menuCode" maxlength="32" value="<?php if (isset($this->data['menuCode'])): echo $this->escape($this->data['menuCode']); endif ?>" />
+                        <span class="guide">10文字以内。商品を一意に識別できるコードを入力してください。例）1111</span>
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require"><span>商品名</span></th>
+					<td>
+						<input type="text" size="50" id="itemName" name="itemName" maxlength="85" value="<?php if (isset($this->data['itemName'])) { echo $this->escape($this->data['itemName']);}?>" />
+                        <span class="guide">85文字以内。例）タラ白子のムニエル<br/>@#$%^&"\'+=<>{}[\],は使用しないでください。</span>
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require"><span>カテゴリー名</span></th>
+					<td>
+                                                <select id="category1_code" name="category1_code" style="160px;">
+                                                    <?php echo $optionCategory1; ?>
+                                                </select>
+                                                <span class="guide">カテゴリーを選択してください。</span>
+                                        </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require"><span>商品単価</span></th>
+					<td>
+						<input type="text" style="width:80px;text-align: right;" id="price" name="price" maxlength="10" value="<?php if (isset($this->data['price'])) { echo $this->escape($this->data['price']); } ?>"/>
+						<label>円</label>
+                        <span class="guide">数字8桁以内。</span>
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">カスタムオーダー</th>
+					<td>
+						<?php echo $this->formSelect('SCP5', (!empty($this->data['SCP5']) ? $this->data['SCP5'] : null), null, $this->dataSubComment) ?>
+                        <span class="guide">カスタムオーダーが存在する場合、選択してください。</span>
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">トッピンググループ</th>
+					<td>
+						<select id="itemToppingGroupId" name="itemToppingGroupId" style="160px;">
+                                                    <?php echo $optionTopping; ?>
+                                                </select>
+                        <span class="guide">トッピングが存在する場合、選択してください。</span>
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">商品画像</th>
+					<td>
+						<input id="p_image_file" type="file" name="p_image_file[]" class="input" style="width:322px">
+                        <span class="guide">商品画像を設定してください。<br/>
+						ファイルサイズは2MB以内。<br/>
+						推奨サイズは512x384(px)です。<br/>
+						画像を削除したい場合は画像の上にカーソルをおくと×マークが画像の左上に出るのでクリックします。<br/>
+						すると画像が消えるので、その状態で更新すると画像が削除されます。</span>
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">
+						<label>説明</label>
+					</th>
+					<td>
+						<textarea id="desc" name="desc"  rows="10" col="50" maxlength="1000" style="width:290px"><?php if (isset($this->data['desc'])) { echo $this->escape($this->data['desc']); } ?></textarea>
+                        <span class="guide">1000文字以内で商品の説明を入力してください。<br/>
+						iPad上では目安として36文字で改行します。<br/>@#$%^&"\'+=<>{}[\],は使用しないでください。</span>
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">
+						<label>関連商品1</label>
+					</th>
+					<td>
+						<select id="suggest1" name="suggest1" style="160px;">
+							<option value=""></option>
+							<?php echo $optionSuggest1Product; ?>
+						</select>
+                        <span class="guide">関連商品が存在する場合、選択してください。</span>
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">
+						<label>関連商品2</label>
+					</th>
+					<td>
+						<select id="suggest2" name="suggest2" style="160px;">
+							<option value=""></option>
+							<?php echo $optionSuggest2Product; ?>
+						</select>
+                        <span class="guide">関連商品が存在する場合、選択してください。</span>
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">
+						<label>関連商品3</label>
+					</th>
+					<td>
+						<select id="suggest3" name="suggest3" style="160px;">
+							<option value=""></option>
+							<?php echo $optionSuggest3Product; ?>
+						</select>
+                        <span class="guide">関連商品が存在する場合、選択してください。</span>
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row">取扱い時間</th>
+					<td>
+						<table class="sub-input">
+							<tbody><tr>
+								<th align="right" style="width:50%">
+                                                                        <div style="width: 28%;float: left;">
+                                                                                開始時刻&nbsp;
+                                                                                <input type="text" size="50" style="width:114px;" id="startTime" name="startTime" maxlength="5"
+                                                                                        value="<?php
+                                                                                             if (isset($this->data['startTime'])
+                                                                                                     && $this->data['startTime'] != ''
+                                                                                             ) {
+                                                                                                     echo $this->escape(substr($this->data['startTime'], 0, 2) . ':' . substr($this->data['startTime'], 2, 2));
+                                                                                             } else {
+                                                                                                     echo '';
+                                                                                             }
+                                                                                            ?>"/>
+                                                                        </div>
+                                                                        <div style="width:  32%;float: left;">
+                                                                                終了時刻&nbsp;
+                                                                                <input type="text" size="50" style="width:114px;"  id="endTime" name="endTime" maxlength="5"
+                                                                                        value="<?php
+                                                                                             if (isset($this->data['endTime'])
+                                                                                                     && $this->data['endTime'] != ''
+                                                                                             ) {
+                                                                                                     echo $this->escape(substr($this->data['endTime'], 0, 2) . ':' . substr($this->data['endTime'], 2, 2));
+                                                                                             }?>" />
+                                                                        </div>
+                                                                        <div style="clear: both;float: left; margin-left: 10px; text-align: left;">
+                                                                            <input type="hidden" name="Time" id="Time">
+                                                                        </div>
+                                                        
+                                                                        									
+								</th>
+								
+							</tr>
+							</tbody>
+						</table>
+                        <span class="guide">取扱い開始時刻と終了時刻が存在する場合、入力してください。</span>
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">					
+					<th class="common-tbl-row">プリンター</th>
+					<td>
+						<table class="sub-input">
+							<tbody><tr>
+								<th align="right" style="width:50%">
+                                                                        <div style="width: 28%;float: left;">
+                                                                            IP&nbsp;<input type="text" style="width:100px" id="PrinterIP" name="PrinterIP" value="<?php if (isset($this->data['PrinterIP'])) { echo $this->escape($this->data['PrinterIP']);}?>" />
+                                                                        </div>
+                                                                        <div style="width:  32%;float: left;">
+                                                                            ポート&nbsp;<input type="text" style="width:100px" id="PrinterPort" name="PrinterPort" maxlength="10" value="<?php if (isset($this->data['PrinterPort'])) { echo $this->escape($this->data['PrinterPort']); }?>" />
+                                                                        </div>
+                                                                        <div style="clear: both;float: left; margin-left: 10px; text-align: left;">
+                                                                            <input type="hidden" name="Printer" id="Printer">
+                                                                        </div>
+                                                        
+							
+								</th>
+							</tr>
+							</tbody>
+						</table>
+                        <span class="guide">商品を印字するプリンターのIPアドレス。<br/>
+						ポートは通常9100。</span>
+					</td>
+				</tr>			
+			</table>
+			<input type="hidden" id="no" name="no" value="<?php echo $this->escape($this->no); ?>" />
+		</div>
+		<div class="btn-container">
+			<div class="edit-btn-article">
+				<input id="btnsave" type="button" class="input_btn btnsave" role="button" value="登録" />
+			</div>
+		</div>
+	</form>
+</div>
+	
+<script>
+    var endTime        = '#endTime';
+    var startTime      = '#startTime';
+    var price          = '#price';
+    var frm_add        = '#frm_add';
+    var btnsave         = '.btnsave';
+	
+    $(function(){
+        $(endTime).timespinner({
+            showSeconds:false
+        });
+    })
+    
+    $(function(){
+        $(startTime).timespinner({
+            showSeconds:false
+        });
+    })
+	
+    $(function(){
+        $(price).numberbox({
+            min:0,
+            precision:0
+        });
+        $(startTime).removeAttr('style');
+        $(startTime).css('width', '100px');
+        $(endTime).removeAttr('style');
+        $(endTime).css('width', '100px');
+		$('.spinner-arrow-up').removeAttr('style');
+		$('.spinner-arrow-down').removeAttr('style');
+    }); 
+ 
+    $(btnsave).bind('click', function(){		
+        $(frm_add)[0].action = '/product/addexecute';
+        $(frm_add).submit();
+    });
+</script>

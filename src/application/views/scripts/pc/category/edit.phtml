@@ -1,0 +1,158 @@
+<?php
+/**
+ * Edit category form
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/23
+ */
+?>
+<?php
+    $req = Zend_Controller_Front::getInstance()->getRequest();
+    $session = Globals::getSession();
+    $modelList_category = new Application_Model_Datagrid();
+    $params = $req->getParams();
+    $url = $modelList_category->getCreateURL('/category/index',$params);
+    if(isset($session->backUrl)){
+        $url = $session->backUrl;
+    }else{
+        $session->backUrl = $url;
+    }
+    
+    if(!isset($session->nameCategory)){
+        $session->nameCategory = $this->escape($this->data['name']);
+    }
+    
+    if(!isset($session->imageDelete)){
+        $session->imageDelete = isset($this->data['image'])?$this->data['image']:'';
+    }
+    
+    $data_kind = isset($this->data['kind'])?$this->data['kind']:'';
+?>
+<div class="section">
+	<form name="frm_edit" id="frm_edit" method="post" action="" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			<?php echo $session->nameCategory; ?>の編集
+		</div>
+                <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <?php if ($this->hide_first_mesage == 0) { ?><li><strong>カテゴリーの編集に失敗しました。</strong></li><?php } ?>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+                        <div class="edit-tbl-wrapper">
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row " width="100px"><span>カテゴリーID</span></th>
+                                                <td width="450px">
+                                                        <input  id="code" name="code" type="text" style="width:80px"  readonly="readonly"  value="<?php echo $this->escape($this->data['code']) ?>"  />
+                                                        <span class="guide">カテゴリーIDは自動採番されます。</span>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require " width="100px"><span>カテゴリー種別</span></th>
+                                                <td width="450px">
+                                                        <select id="kind" name="kind" >
+                                                            <option value="1" <?php if( $data_kind == 1):?> selected="selected"<?php endif;?>>1</option>
+                                                            <option value="2" <?php if( $data_kind == 2):?> selected="selected"<?php endif;?>>2</option>
+                                                        </select>
+                                                        <span class="guide">1:メインカテゴリー<br/>
+													2:サブカテゴリー<br/>
+													通常は1を選択してください。</span>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require"><span>カテゴリー名</span></th>
+                                                <td>
+                                                    <input type="text" size="50" id="name" name="name" maxlength="85"  value="<?php echo $this->escape($this->data['name']); ?>" />
+                                                    <span class="guide">85文字以内。例）ドリンク</td>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span>カテゴリー画像</span></th>
+                                                <td class="text_input">
+                                                        <?php $hasImage = !empty($this->data['image']); ?>
+                                                        <div id="div_image_category" class="edit_img" style="display:<?php echo $hasImage ? 'inline-block' : 'none'; ?>">
+                                                                <a class="fancybox-effects-a" href="/category/image/name/<?php echo $this->escape($this->data['image']) ?>">
+                                                                        <img width="200px" src="/category/image/name/<?php echo $this->escape($this->data['image']) ?>" />
+                                                                </a>
+                                                                <div id="delete_image" class="del_btn" style="cursor:pointer"><img title="削除する" width="30px" src="/images/del.png"/></div>
+                                                                <input type="hidden" id="image_category" name="image_category" value="<?php echo (!empty($this->data['image']) ? $this->escape($this->data['image']) : '') ?>">
+                                                                <input type="hidden" name="image_category_old" value="<?php echo (!empty($this->data['image']) ? $this->escape($this->data['image']) : '') ?>">
+                                                        </div>
+                                                        <input id="image" type="file" name="image[]" class="input" style="width:322px;display:<?php echo $hasImage ? 'none' : 'block'; ?>">						
+                                                        <span class="guide">カテゴリーの画像を設定してください。<br/>
+													ファイルサイズは2MB以内。<br/>
+													推奨サイズは512x384(px)です。</span>
+                                                </td>
+                                        </tr>
+                                </table>
+                        </div>
+                        <div class="btn-container">
+                                <div class="edit-btn-article">
+					<span class="btn btn-l btn-action lft"><a href="<?php echo $url; ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+					<span class="btn btn-d btn-delete rft"><a href="javascript:void(0)" id="btndelete-bottom" ><span class="ic-delete">削除</span></a></span>
+                                        <input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="更新" value="更新">					
+				</div>
+                        </div>
+        </form>
+</div>
+
+<script>
+    var frm_edit       = '#frm_edit';
+    var btnsave        = '#btnsave-bottom';
+    $(document).ready(function() {	
+            $('.fancybox').fancybox();
+
+            // Change title type, overlay closing speed
+            $(".fancybox-effects-a").fancybox({
+                    helpers: {
+                            title : {
+                                    type : 'outside'
+                            },
+                            overlay : {
+                                    speedOut : 0
+                            }
+                    }
+            });
+            
+    });
+    $(delete_image).bind('click', function() {
+		$('#div_image_category').css('display', 'none');
+                $('#image').css('display', 'block');
+                $('#image_category').val('');
+    });
+   $(btnsave).bind('click', function(){
+//        if (!confirm('<?php // echo $this->confirmEdit;?>')) return;
+        $(frm_edit)[0].action = '/category/editexecute';
+        $(frm_edit).submit();
+    });
+    $('#btndelete-bottom').click(function(){
+        if (!confirm('<?php echo sprintf($this->confirmDel, $this->escape($session->nameCategory));?>')) return;
+            $(frm_edit)[0].action = '/category/delete';
+            $(frm_edit).submit();
+    });
+ </script>

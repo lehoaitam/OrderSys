@@ -1,0 +1,175 @@
+<?php
+/**
+ * Add product form
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/18
+ */
+?>
+<?php
+    //---get data Category
+    $csv = new Application_Model_Category();
+    $data_Categ = $csv->getDataJson1();
+    $optionCategory1   = $csv->createOptionCategory($data_Categ['rows'],array('value'=>'code','title'=>'name'),isset($this->data['category1_code'])?$this->escape($this->data['category1_code']):'','');
+
+    //---get data Topping
+    $csv = new Application_Model_Topping();
+    $data_Topping = $csv->getData();
+    $optionTopping   = $csv->createOptionToppiong($data_Topping,array('value'=>'itemToppingGroupId','title'=>'itemToppingGroupName'),isset($this->data['itemToppingGroupId'])?$this->escape($this->data['itemToppingGroupId']):'','');
+    
+	//---get data Product
+    $data_Product = $this->indexModel->getDataJson();
+	$optionSuggest1Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+	$optionSuggest2Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+	$optionSuggest3Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+?>
+
+<div class="section">
+	<form name="frm_add" id="frm_add" method="post" action="/product/add" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			新規商品登録
+		</div>
+		<?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+			    <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>商品の登録に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+		<div class="edit-tbl-wrapper">
+			<table class="data-filter" border="1" width="100%">
+				<?php $indexRow = 1; ?>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label require" nowrap="true"><span>商品ID</span></td>
+					<td>
+						<input type="text" style="width:80px" id="menuCode" name="menuCode" maxlength="32" value="<?php if (isset($this->data['menuCode'])): echo $this->escape($this->data['menuCode']); endif ?>" />
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label require" nowrap="true"><span>商品名</span></td>
+					<td>
+						<input type="text" size="50" id="itemName" name="itemName" maxlength="85" value="<?php if (isset($this->data['itemName'])) { echo $this->escape($this->data['itemName']);}?>" />
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label require" nowrap="true"><span>カテゴリー名</span></td>
+					<td>
+                                                <select id="category1_code" name="category1_code" style="160px;">
+                                                    <?php echo $optionCategory1; ?>
+                                                </select>
+                                        </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label require" nowrap="true"><span>商品単価</span></td>
+					<td>
+						<input type="text" style="width:80px;text-align: right;" id="price" name="price" maxlength="10" value="<?php if (isset($this->data['price'])) { echo $this->escape($this->data['price']); } ?>"/>
+						<label>円</label>
+					</td>
+				</tr>				
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label" nowrap="true">商品画像</td>
+					<td>
+						<input id="p_image_file" type="file" name="p_image_file[]" class="input" style="width:160px;height:25px">
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label" nowrap="true">
+						<label>説明</label>
+					</td>
+					<td>
+						<textarea id="desc" name="desc"  rows="6" col="30" maxlength="1000"><?php if (isset($this->data['desc'])) { echo $this->escape($this->data['desc']); } ?></textarea>
+                    </td>
+				</tr>
+                <?php if ($this->showPrinterInput) { ?>
+                <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">					
+					<td class="label">プリンター</td>
+					<td>
+						<table class="sub-input" style="width:1%">
+							<tbody><tr>
+								<th align="right">
+                                    <div style="display:inline-block">
+                                        IP&nbsp;<input type="text" style="width:100px" id="PrinterIP" name="PrinterIP" value="<?php if (isset($this->data['PrinterIP'])) { echo $this->escape($this->data['PrinterIP']);}?>" />
+                                    </div>
+                                    <div style="display:inline-block">
+                                        ポート&nbsp;<input type="text" style="width:100px" id="PrinterPort" name="PrinterPort" maxlength="10" value="<?php if (isset($this->data['PrinterPort'])) { echo $this->escape($this->data['PrinterPort']); }?>" />
+                                    </div>
+                                    <div style="clear: both;float: left; margin-left: 10px; text-align: left;">
+                                        <input type="hidden" name="Printer" id="Printer">
+                                    </div>
+								</th>
+							</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+                <?php } ?>
+			</table>
+			<input type="hidden" id="no" name="no" value="<?php echo $this->escape($this->no); ?>" />
+		</div>
+		<div class="btn-container">
+			<div class="edit-btn-article">
+				<input id="btnsave" type="button" class="input_btn btnsave" role="button" value="登録" />
+			</div>
+		</div>
+	</form>
+</div>
+	
+<script>
+    var endTime        = '#endTime';
+    var startTime      = '#startTime';
+    var price          = '#price';
+    var frm_add        = '#frm_add';
+    var btnsave         = '.btnsave';
+	
+    $(function(){
+        $(endTime).timespinner({
+            showSeconds:false
+        });
+    })
+    
+    $(function(){
+        $(startTime).timespinner({
+            showSeconds:false
+        });
+    })
+	
+    $(function(){
+        $(price).numberbox({
+            min:0,
+            precision:0
+        });
+        $(startTime).removeAttr('style');
+        $(startTime).css('width', '100px');
+        $(endTime).removeAttr('style');
+        $(endTime).css('width', '100px');
+		$('.spinner-arrow-up').removeAttr('style');
+		$('.spinner-arrow-down').removeAttr('style');
+    }); 
+ 
+    $(btnsave).bind('click', function(){		
+        $(frm_add)[0].action = '/product/addexecute';
+        $(frm_add).submit();
+    });
+</script>

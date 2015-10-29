@@ -1,0 +1,100 @@
+<?php
+/**
+ * View category list
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/20
+ */
+?>
+<?php 
+
+//---get URL;
+//---list data
+$session = Globals::getSession();
+if(isset($session->backUrl)){
+    unset($session->backUrl);
+}
+if(isset($session->nameCategory)){
+    unset($session->nameCategory);
+}
+if(isset($session->imageDelete)){
+    unset($session->imageDelete);
+}
+
+
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$params = $req->getParams();
+$header['code'] = array('title'=>'カテゴリーID','hoption'=>'style="width:150px;"  ','option'=>'class="code"  ','sort'=>'code','order'=>'desc');
+$header['name'] = array('title'=>'カテゴリー名','hoption'=>'style=""  ','option'=>'class="text"  ','sort'=>'name','order'=>'desc');
+
+$data = $this->dataCategoryList;
+
+$listData = new Application_Model_Datagrid($data,$header);
+
+$pageNavi_html = $listData->creatPageNavigation();
+
+$pageLink_html = $listData->creatPageLink();
+$list_html = $listData->createList(array('code'=>array('action'=>'/category/edit','namepost'=>'code_edit','value'=>'id'),
+                                         'name'=>array('action'=>'/category/edit','namepost'=>'code_edit','value'=>'id') ));
+
+?>
+<form name="frm_category" id="frm_category" method="get" action="">    
+
+    <div id="page-title">
+            カテゴリー一覧
+    </div>
+        <?php if (!empty($this->message)) : ?>
+                <?php if ($this->success) : ?>
+                    <div style="padding: 0.3em;"> 
+                        <ul class="message-section">
+                            <?php foreach ($this->message as $msg): ?>
+                                <?php if (!is_array($msg)) : ?>
+                                    <li><?php echo $this->escape($msg); ?></li>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <div class="clear"></div>
+                <?php else : ?>
+                    <div style="padding:0.3em;">				
+                        <ul class="error-section">
+                            <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+                            <?php foreach ($this->message as $msg): ?>
+                                <?php if (!is_array($msg)) : ?>
+                                    <li><?php echo $this->escape($msg); ?></li>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <div class="clear"></div>
+                <?php endif; ?>
+        <?php endif; ?>                    
+    <div class="detail-btn">
+            <?php if($this->datasetting['linkSystem'] == 2){
+                //----2 setting ios sumareji;
+                ?>  
+                <?php
+                }else{ ?>
+					<span class="btn btn-m btn-action"><a href="<?php echo $listData->getCreateURL('/category/add',$params) ?>"><span class="ic-add">新規追加</span></a></span>
+                    <span class="btn btn-m btn-normal"><a href="<?php echo $listData->getCreateURL('/category/import',$params) ?>"><span class="ic-upload">CSVアップロード</span></a></span>
+                    <span class="btn btn-m btn-normal"><a href="<?php echo $listData->getCreateURL('/category/downloadoption',$params) ?>"><span class="ic-dl">CSVダウンロード</span></a></span>
+            <?php }?>
+    </div>
+
+    <?php 
+    echo $pageNavi_html;
+    echo $pageLink_html;
+    echo $list_html;
+    ?> 
+</form>
+<div class="clear"></div>
+<script>
+
+    $('#rows').change(function(){
+        var url_search = '';
+        url_search = '/rows/' + $('#rows').val();
+        location.href = '<?php unset($params['rows']); $params['page'] = 1; echo $listData->getCreateURL('/category/index',$params) ?>'+url_search;
+    });
+</script>
+

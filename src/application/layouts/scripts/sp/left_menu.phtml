@@ -1,0 +1,49 @@
+<?php
+$session = Globals::getSession();
+$menu = new Menu(null, null);
+$items = $menu->getHeaderNavigation();
+
+// If the session has lost
+if (empty($session->select)) {
+    foreach ($items as $path => $item) {
+        foreach ($item['list'] as $key => $page) {
+            // Get current left menu by current controller name
+            if (strpos($page['path'], $this->controller) !== false) {
+                // Get the menu key
+                $session->select = $page['key'];
+                break(2);
+            }
+        }
+    }
+}
+?>
+<?php if ($this->controller != 'index'): ?>
+<div id="navi_cate" class="ui-datepicker ui-widget ui-widget-content" style="display:block;">
+<?php $isHeader = true; ?>
+<?php foreach ($items as $path => $item): ?>        
+    <?php if ($path == $session->select): ?>
+        <?php foreach ($item['list'] as $k => $page): ?>
+            <?php if (isset($page['show']) && ($this->controller != $page['show'])) { 
+                continue;
+            } ?>
+            <?php if ($isHeader): ?>
+            <div class="ui-datepicker-header leftheader ui-helper-clearfix ui-corner-all">
+                <div align="center"><?php echo $item['name']; ?></div>
+            </div>
+            <?php $isHeader = false; ?>
+            <?php endif ?>
+            <?php if (isset($page['header']) && ($page['header'] == true)): ?>
+            <div class="ui-datepicker-header leftheader ui-helper-clearfix ui-corner-all" style="margin-top:2px;">
+                <div align="center"><?php echo $page['name']; ?></div>
+            </div>
+            <?php continue; ?>
+            <?php endif ?>
+            <div class="ui-accordion-header leftmenu ui-corner-all " role="tab" aria-expanded="false" aria-selected="true" tabindex="-1">
+                <span class="ui-icon ui-icon-triangle-1-e"></span>
+                <a href="<?php echo $page['path']; ?>" target="_self" tabindex="-1"><?php echo $page['name'];?></a>
+            </div>
+        <?php endforeach ?>
+    <?php endif ?>
+<?php endforeach?>
+</div>
+<?php endif ?>

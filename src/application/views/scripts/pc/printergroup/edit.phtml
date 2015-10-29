@@ -1,0 +1,123 @@
+<?php
+/**
+ * Edit printer group form
+ * PHP version 5.3.9
+ * @author nqtrung
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/12/18
+ */
+?>
+<?php 
+
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$session = Globals::getSession();
+
+$modelList_product = new Application_Model_Datagrid();
+$params = $req->getParams();
+$url = $modelList_product->getCreateURL('/printergroup/index',$params);
+if(isset($session->backUrl)){
+    $url = $session->backUrl;
+}else{
+    $session->backUrl = $url;
+}
+
+?>
+<div class="section">
+	<form name="frm_edit" id="frm_edit" method="post" action="">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			<?php echo $this->data['groupName']; ?>の編集
+		</div>
+                <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>ファイルの登録に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+                        <div class="edit-tbl-wrapper">
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                            <th class="common-tbl-row" width="100px"><span>グループID</span></th>
+                                            <td width="450px">
+                                                <input type='text' size="40" readonly="readonly" id="groupId" name="groupId" maxlength="10" 
+                                                    value="<?php if (isset($this->data['groupId'])) { echo $this->escape($this->data['groupId']); } ?>" />
+                                                <span class="guide">グループIDは自動採番</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                            <th class="common-tbl-row require"><span>グループ名</span></th>
+                                            <td>
+                                                <input type='text' size="40" id="groupName" name="groupName" maxlength="10" 
+                                                    value="<?php if (isset($this->data['groupName'])) { echo $this->escape($this->data['groupName']); } ?>" />
+                                                <span class="guide">プリンター設定の解りやすい名称を入力（10文字以内）</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                            <th class="common-tbl-row" width="100px"><span>会計伝票プリンター</span></th>
+                                            <td>
+                                                <input type='text' size="40" id="IPAddress" name="IPAddress" maxlength="15" 
+                                                    value="<?php if (isset($this->data['IPAddress'])) { echo $this->escape($this->data['IPAddress']); } ?>" />
+                                            </td>
+                                        </tr>
+                                        <?php foreach ($this->categoryData as $value): ?>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row "><span><?php echo $this->escape($value['name']); ?></span></th>
+                                                <td>
+                                                    <input type='text' size="40" name="printerIP[]" maxlength="45" 
+                                                        value="<?php if (isset($this->printerIPs[$value['code']])) { echo $this->escape($this->printerIPs[$value['code']]); } ?>" />
+                                                    <input type="hidden" name="hPrinterIP[]" value="<?php echo $value['code'] ?>"/>
+                                                    <input type="hidden" name="msg<?php echo $value['code'] ?>" value=""/>
+                                                    <span class="guide">このカテゴリー商品を印刷するプリンターIPアドレス入力</span>
+                                                </td>
+                                        </tr>
+                                <?php endforeach; ?>
+                                </table>
+                        </div>
+                        <div class="btn-container">
+                                <div class="edit-btn-article">
+                                        <span class="btn btn-l btn-action lft"><a href="<?php echo $url; ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+					<span class="btn btn-d btn-delete rft"><a href="javascript:void(0)" id="btndelete-bottom" ><span class="ic-delete">削除</span></a></span>
+                                        <input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="更新" value="更新">					
+                                </div>
+                        </div>
+        </form>
+</div>
+
+<script>
+    var frm_edit       = '#frm_edit';
+    var btnsave        = '#btnsave-bottom';
+
+    $(btnsave).bind('click', function(){
+        $(frm_edit)[0].action = '/printergroup/editexecute';
+        $(frm_edit).submit();
+    });
+     
+    $('#btndelete-bottom').click(function(){
+        if (!confirm('<?php echo sprintf($this->confirmDel, $this->data['groupName'] );?>')) return;
+            $(frm_edit)[0].action = '/printergroup/delete/id/<?php if (isset($this->data['groupId'])): echo $this->escape($this->data['groupId']); endif ?>';
+            $(frm_edit).submit();
+    });
+
+ </script>

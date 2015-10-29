@@ -1,0 +1,245 @@
+<?php
+/**
+ * View list customer order
+ * PHP version 5.3.9
+ * @author Nguyen Dinh Bao
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/04/18
+ */
+//---get URL;
+//---list data
+$session = Globals::getSession();
+if(isset($session->backUrl)){
+    unset($session->backUrl);
+}
+
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$params = $req->getParams();
+
+$header['no'] = array('title'=>'グループID','hoption'=>'style="width:100px;"  ','option'=>'class="code"  ','sort'=>'no','order'=>'desc');
+$header['guidance'] = array('title'=>'カスタムオーダーグループ名','hoption'=>'style=""  ','option'=>'class="text"  ','sort'=>'guidance','order'=>'desc');
+
+$data = $this->dataCustomerOrderList;
+
+$listData = new Application_Model_Datagrid($data,$header);
+
+$pageNavi_html = $listData->creatPageNavigation();
+
+$pageLink_html = $listData->creatPageLink();
+$list_html = $listData->createList(array('guidance'=>array('action'=>'/subcomment/edit','namepost'=>'id_edit','value'=>'no'),
+                                        'no'=>array('action'=>'/subcomment/edit','namepost'=>'id_edit','value'=>'no')
+                                        ));
+
+?>
+<form name="frm_setting" id="frm_setting" method="get" action="">    
+    <div id="page-title">
+        カスタムオーダーグループ一覧
+    </div>
+    <?php if (!empty($this->message)) : ?>
+	<?php if ($this->success) : ?>
+	    <div style="padding: 0.3em;"> 
+		<ul class="message-section">
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php else : ?>
+	    <div style="padding:0.3em;">				
+		<ul class="error-section">
+		    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php endif; ?>
+<?php endif; ?>
+    <div class="detail-btn">
+		<?php if($this->datasetting['linkSystem'] == 2){
+                //----2 setting ios sumareji;
+                ?> 
+
+                <?php
+                }else{ ?>
+					<span class="btn btn-m btn-action"><a href="<?php echo $listData->getCreateURL('/subcomment/add',$params) ?>"><span class="ic-add">新規追加</span></a></span>           
+            <?php }?>
+    </div>        
+<?php 
+echo $pageNavi_html;
+echo $pageLink_html;
+echo $list_html;
+?>
+</form>    
+<div class="clear"></div>
+<script>
+    var subcomment_list = '#subcomment_list';
+    var frm_subcomment  = '#frm_subcomment';
+    var id_edit         = '#id_edit';
+    
+    var btnDelete   = '#delete_button';
+    $(btnDelete).bind('click', function(){
+        if(getSelections()=='') {
+            alert('<?php echo $this->alertDel;?>');
+        } else {
+            if (!confirm('<?php echo $this->confirmDel;?>')) return;
+            $(id_edit).val(getSelections());
+            $(frm_subcomment).submit();
+        }
+    });
+    
+    $('#rows').change(function(){
+        var url_search = '';
+        url_search = '/rows/' + $('#rows').val();
+        location.href = '<?php unset($params['rows']); $params['page'] = 1; echo $listData->getCreateURL('/subcomment/index',$params) ?>'+url_search;
+    });
+    
+    $(function(){
+        $("#main").css('width', getWidth()+50);
+        $(subcomment_list).datagrid({
+            width:getWidth(),
+            //height:getHeight(),
+            pageSize:300,
+            pageList:[100,200,300,400,500],
+            pagePosition:'both',
+            striped:true,
+            rownumbers:true,
+            showFooter:true,
+            idField:'no',
+            url:'<?php echo $this->dataSubCommentList;?>',
+            frozenColumns:[[
+                {field:'ck',title:'削除',checkbox:true},
+                {field:'編集',title:'編集',width:40,align:'center',
+                    formatter:function(value, row){
+                        return '<a href="#" onclick="edit(\'' + row.no + '\')">編集</a>';
+                    }
+                },
+                {field:'no',title:'番号',width:40,align:'right',sortable:true,order:'asc',
+                    formatter:function(value){                                    
+                        return '<a href = "#" onclick = "edit(' + "'" + value + "'" + ')">' + value + '</a>';
+                    }
+                },
+                {field:'guidance',title:'サブコメント',width:140}
+            ]],
+            columns:[[
+                {field:'menu1',title:'商品１',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu2',title:'商品２',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu3',title:'商品３',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu4',title:'商品４',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu5',title:'商品５',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu6',title:'商品６',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu7',title:'商品７',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu8',title:'商品８',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu9',title:'商品９',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu10',title:'商品１０',width:100,
+                     formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu11',title:'商品１１',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu12',title:'商品１２',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu13',title:'商品１３',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu14',title:'商品１４',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu15',title:'商品１５',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                },
+                {field:'menu16',title:'商品１６',width:100,
+                    formatter:function(value,rec){
+                        return (value == 0) ? '' : value;
+                    }
+                }
+            ]],
+            pagination:true
+        });
+    });
+    
+    function getSelections(){
+        var ids = [];
+        var rows = $(subcomment_list).datagrid('getSelections');
+        for(var i=0;i<rows.length;i++){
+            ids.push(rows[i].no);
+        }
+        return (ids.join(','));
+    }
+    
+    function getSelected(){
+        var selected = $(subcomment_list).datagrid('getSelected');
+        if (selected){
+            return(selected.no);
+        }
+    }
+    
+    function selectRecord(id){
+        $(subcomment_list).datagrid('selectRecord',id);
+    }
+    
+    function edit(id){
+        selectRecord(id);
+        $(id_edit).val(getSelected());
+        $(frm_subcomment)[0].action = '/subcomment/edit';
+        $(frm_subcomment).submit();
+    }
+</script>
+
+
+

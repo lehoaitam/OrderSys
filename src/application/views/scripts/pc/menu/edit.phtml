@@ -1,0 +1,280 @@
+<?php
+/**
+ * Add new menu
+ * PHP version 5.3.9
+ * @author Nguyen Huu Tam
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/13
+ */
+?>
+<div id="content">
+    <div id="page-title">
+        <?php echo $this->escape($this->page_number); ?>ページ 編集
+    </div>
+    <?php if (!empty($this->message)) : ?>
+        <?php if ($this->success) : ?>
+            <div style="padding: 0.3em;">
+                <ul class="message-section">
+                    <?php foreach ($this->message as $msg): ?>
+                        <?php if (!is_array($msg)) : ?>
+                            <li><?php echo $this->escape($msg); ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <div class="clear"></div>
+        <?php else : ?>
+            <div style="padding:0.3em;">
+                <ul class="error-section">
+                    <li><strong>メニューの登録に失敗しました。</strong></li>
+                    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+                    <?php foreach ($this->message as $msg): ?>
+                        <?php if (!is_array($msg)) : ?>
+                            <li><?php echo $this->escape($msg); ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <div class="clear"></div>
+        <?php endif; ?>
+    <?php endif; ?>
+    <form method="post" id="main_form" action="/menu/do-edit" enctype="multipart/form-data">
+        <?php echo $this->csrf; ?>
+
+        <ul class="form-list">
+            <li>
+                <div id="menu_design">
+                    <div style="background: #fff">
+                        <table class="data-filter select_img" width="100%" border="1">
+                            <tr class="odd">
+                                <td class="label" style="width: 220px !important"><span>ページ番号</span></td>
+                                <td>
+                                    <?php echo $this->escape($this->page_number); ?>
+                                </td>
+                            </tr>
+                            <tr class="even">
+                                <td class="label require"><span>ページ背景画像</span></td>
+                                <td>
+									<input id="image_file" name="image_file" type="file" class="input" value="" style="float: left; margin: 3px 5px 0 0;">
+                                    <div style="float: left; margin-top: 0px; text-align: right;">
+                                        <input class="input-btn" id="upload" type="button" value="取込" />
+                                    </div>
+                                    <div class="clr"></div>
+                                    <span class="guide">
+                                        ファイルサイズは10MB以内。<br/>
+                                        縦向きの場合、幅を450px以上、高さを600px以上としてください。<br/>
+                                        横向きの場合、幅を600px以上、高さを450px以上としてください。
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div id="menu_design_container" style="width:<?php echo $this->JCropWidth + 20 + 457; ?>px">
+                            <div id="menu_design_content">
+                                <div class="col-image" style="float: left;width:<?php echo $this->JCropWidth + 20 ?>px;">
+                                    <!--<div class="preview-label">プレビュー</div>-->
+									<div style="width: <?php echo $this->JCropWidth + 20; //20: border ?>px; margin: 0 auto;">
+										<div class="product-col-label"><label>背景画像</label></div>
+
+										<div id="preview" class="preview" style="text-align: center; background: #CCCCCC !important">
+											<?php if (!empty($this->imageName)) : ?>
+												<img src="<?php echo $this->imageUrl; ?>" id="menu_image" style="display: none; visibility: hidden;">
+											<?php else: ?>
+												<div id="no_image_holder" style="height:<?php echo $this->JCropWidth * 4 / 3 ?>px">
+												</div>
+											<?php endif; ?>
+										</div>
+									</div>
+                                </div>
+                                <div class="product-col">
+									<div id="rightTabs" class="easyui-tabs" style="height:auto">
+										<div title="商品">
+											<div>
+												<input type="text" id="search" name="search" placeholder="検索キーワードを入力" style="width:350px;margin: 0px 2px"/>
+												<input type="text" style="display: none">
+											</div>
+											<div class="panel panel1 datagrid">
+												<table
+													id="menu_products"
+													class="datagrid-htable"
+													style="height:<?php echo $this->listHeight; ?>px;"
+													url="<?php echo $this->urlProductList; ?>"
+													fitColumns="false"
+													singleSelect="false"
+													ctrlSelect="true"
+													striped="true"
+													sortName="code"
+													sortOrder="asc"
+													data-options="view:bufferview,onLoadSuccess:function(){initDragging('#menu_products')}">
+													<thead>
+														<tr>
+															<th field="id" width="1" hidden="true">ID</th>
+															<th field="code" width="60" align="right" sortable="true">商品ID</th>
+															<th field="name" width="520" sortable="true">商品名</th>
+															<th field="type" width="1" hidden="true">Type</th>
+														</tr>
+													</thead>
+												</table>
+											</div>
+										</div>
+										<div title="ページ">
+											<div class="panel panel1 datagrid">
+												<table
+													id="menu_links"
+													class="datagrid-htable"
+													style="height:<?php echo $this->listHeight + 28; ?>px;"
+													url="<?php echo $this->urlLinkList; ?>"
+													fitColumns="false"
+													singleSelect="true"
+													striped="true"
+													showHeader="false"
+													data-options="onLoadSuccess:function(){initDragging('#menu_links')}">
+													<thead>
+														<tr>
+															<th field="id" width="1" hidden="true">ID</th>
+															<th field="code" width="60" align="right" hidden="true">商品ID</th>
+															<th field="name" width="520">商品名</th>
+															<th field="type" width="1" hidden="true">Type</th>
+														</tr>
+													</thead>
+												</table>
+											</div>
+										</div>
+										<div title="動画">
+											<div class="panel panel1 datagrid">
+												<table
+													id="menu_videos"
+													class="datagrid-htable"
+													style="height:<?php echo $this->listHeight + 28; ?>px;"
+													url="<?php echo $this->urlVideoList; ?>"
+													fitColumns="false"
+													singleSelect="true"
+													striped="true"
+													showHeader="false"
+													data-options="onLoadSuccess:function(){initDragging('#menu_videos')}">
+													<thead>
+														<tr>
+															<th field="id" width="1" hidden="true">ID</th>
+															<th field="code" width="60" align="right" hidden="true">商品ID</th>
+															<th field="name" width="520">商品名</th>
+															<th field="type" width="1" hidden="true">Type</th>
+														</tr>
+													</thead>
+												</table>
+											</div>
+										</div>
+										<div title="他のメニュー">
+											<div class="panel panel1 datagrid">
+												<table
+													id="menu_menuothers"
+													class="datagrid-htable"
+													style="height:<?php echo $this->listHeight + 28; ?>px;"
+													url="<?php echo $this->urlMenuOthersList; ?>"											
+													fitColumns="false"
+													singleSelect="true"
+													striped="true"
+													showHeader="false"
+													data-options="onLoadSuccess:function(){initDragging('#menu_menuothers')}">
+													<thead>
+														<tr>
+															<th field="id" width="1" hidden="true">ID</th>
+															<th field="code" width="60" align="right" hidden="true">商品ID</th>
+															<th field="name" width="520">商品名</th>
+															<th field="type" width="1" hidden="true">Type</th>
+														</tr>
+													</thead>
+												</table>
+											</div>
+										</div>
+									</div>
+                                </div>
+                                <input type="hidden" value="<?php echo $this->escape($this->page_number); ?>" name="page_number" id="page_number">
+                                <input type="hidden" value="" name="delete_ids" id="delete_ids">
+                                <input type="hidden" value="" name="target" id="target">
+                                <input type="hidden" value="" name="is_upload" id="is_upload">
+								<input type="hidden" value="<?php echo isset($this->data['current_tab']) ? $this->escape($this->data['current_tab']) : ''; ?>" name="current_tab" id="current_tab">
+                                <?php
+                                $maxGroup = 0;
+                                if (is_array($this->lastSelectedArea)) {
+                                    foreach ($this->lastSelectedArea as $group => $value) {
+										if (is_array($value) && isset($value['productIds']) && (strlen($value['productIds']) > 0 || strlen($value['videoIds']) > 0)) {
+											if ($maxGroup < $group) {
+												$maxGroup = $group;
+											}
+											echo '<input type="hidden" value="" name="lastSelectedArea" group="' . $group . '" productIds="' . $value['productIds'] . '" productNames="' . $value['productNames'] . '" videoIds="' . $value['videoIds'] . '" types="' . $value['productTypes'] . '" target="' . $value['target'] . '">';
+										}
+									}
+                                }
+                                ?>
+                                <div class="clr">&nbsp;</div>
+                            </div>
+                        </div>
+                        <div class="clr">&nbsp;</div>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="btn-container">
+                    <div class="edit-btn-article">
+                        <span class="btn btn-l btn-action lft"><a href="<?php echo $this->backUrl; ?>"><span class="ic-normal">メニュー編集に戻る</span></a></span>
+                        <span class="btn btn-d btn-delete rft"><a href="javascript:void(0)" id="delete_menu" ><span class="ic-delete">削除</span></a></span>
+                        <input type="button" class="input_btn_update rft" id="edit_menu" alt="更新" value="更新">
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </form>
+</div>
+
+<script>
+    // Begin init var for menu-init.js
+    var productList     = '#menu_products';
+    var linkList		= '#menu_links';
+    var videoList       = '#menu_videos';
+    var menuOthersList  = '#menu_menuothers';    
+    var fieldId         = 'menuCode';
+    var fieldText       = 'itemName';
+
+    var formId          = '#main_form';
+    var imagePreview    = '#preview';
+    var menuImage       = '#menu_image';
+    var deleteIds       = '#delete_ids';
+    var target          = '#target';
+    var pageNumber      = '#page_number';
+    var isUpload        = '#is_upload';
+    // End init var
+
+    var btnUpload       = '#upload';
+    var btnSubmit       = '#edit_menu';
+    var btnDelete		= '#delete_menu';
+    var txtSearch		= '#search';
+
+    var urlUpdateProduct    = '<?php echo $this->urlUpdateProduct ?>';
+    var urlCheckHtmlFile    = '<?php echo $this->urlCheckHtmlFile ?>';
+    var urlAllList			= '<?php echo $this->urlAllList; ?>';
+    var urlProductList		= '<?php echo $this->urlProductList; ?>';
+    var urlLinkList			= '<?php echo $this->urlLinkList; ?>';
+    var urlVideoList		= '<?php echo $this->urlVideoList; ?>';
+    var maxGroup			= <?php echo $maxGroup; ?>;
+    var JCropWidth			= <?php echo $this->JCropWidth ?>;
+
+    $(menuImage).load(function(){});
+
+    $(btnUpload).bind('click', function(){
+        $(isUpload).val('true');
+        $(formId).submit();
+    });
+
+    $(btnSubmit).bind('click', function(){
+        //if (confirm('<?php echo $this->notice['edit_menu']; ?>')) {
+        $(formId).submit();
+        //}
+    });
+
+    $(btnDelete).bind('click', function() {
+        if (confirm('<?php echo sprintf($this->notice['delete_menu'], $this->escape($this->page_number)); ?>')) {
+            $(formId)[0].action = '/menu/delete/id/' + '<?php echo $this->escape($this->page_number); ?>';
+            $(formId).submit();
+        }
+    });
+</script>

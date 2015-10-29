@@ -1,0 +1,68 @@
+product:
+    name: 商品
+    list:
+        - product_index:
+            name: 商品一覧
+            path: /product
+            key: product
+        - sumareji_index:
+            name: スマレジデー
+            key: sumareji
+        - tecreji_index:
+            name: 東芝TECデータ取込
+            key: tecreji
+        - subcomment_header:
+            name: サブコメント管理
+            header: true
+        - subcomment_index:
+            name: カスタムオーダー
+            path: /subcomment
+            key: product            
+        - topping_header:
+            name: トッピンググループ
+            header: true    
+        - topping_index:
+            name: トッピンググループ
+            path: /topping
+            key: product
+        - soldoutproducts_index:
+            name: 品切れ設定
+            path: /soldoutproducts
+            key: soldoutproducts
+        - recommendproducts_index:
+            name: おすすめ設定
+            path: /recommendproducts
+            key: recommendproducts
+
+category:
+    name: カテゴリー
+    list:
+        - category_index:
+            name: カテゴリー
+            path: /category
+            key: product
+menuset:
+    name: メニュー
+    list:
+        - menuset_index:
+            name: メニュー一覧
+            path: /menuset
+            key: menuset
+        - menu_editTopView:
+            name: hidden
+            key: menu
+        - video_index:
+            name: 動画一覧
+            path: /video
+            key: menuset
+setting:
+    name: 設定
+    list:
+        - setting_index:
+            name: アプリ設定
+            path: /setting
+            key: setting
+        - printergroup_index:
+            name: プリンターグループ設定
+            path: /printergroup
+            key: printergroup

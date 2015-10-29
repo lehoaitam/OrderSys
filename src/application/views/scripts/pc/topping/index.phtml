@@ -1,0 +1,83 @@
+<?php
+/**
+ * View list topping group
+ * PHP version 5.3.9
+ * @author Nguyen Dinh Bao
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/04/23
+ */
+$session = Globals::getSession();
+if(isset($session->backUrl)){
+    unset($session->backUrl);
+}
+
+$req    = Zend_Controller_Front::getInstance()->getRequest();
+$params = $req->getParams();
+
+$header['itemToppingGroupId']   = array('title'=>'トッピンググループID','hoption'=>'style="width:160px;"  ','option'=>'class="code"  ','sort'=>'itemToppingGroupId','order'=>'desc');
+$header['itemToppingGroupName'] = array('title'=>'トッピンググループ名','hoption'=>'style=""  ','option'=>'class="text"  ','sort'=>'itemToppingGroupName','order'=>'desc');
+
+$data           = $this->dataToppingList;
+$listData       = new Application_Model_Datagrid($data,$header);
+$pageNavi_html  = $listData->creatPageNavigation();
+$pageLink_html  = $listData->creatPageLink();
+$list_html      = $listData->createList(array('itemToppingGroupName'=>array('action'=>'/topping/edit','namepost'=>'id_edit','value'=>'itemToppingGroupId'),
+                                                'itemToppingGroupId'=>array('action'=>'/topping/edit','namepost'=>'id_edit','value'=>'itemToppingGroupId')
+                                        ));
+?>
+<form name="frm_setting" id="frm_setting" method="get" action="">    
+    <div id="page-title">
+        トッピンググループ一覧
+    </div>
+    <?php if (!empty($this->message)) : ?>
+	<?php if ($this->success) : ?>
+	    <div style="padding: 0.3em;"> 
+		<ul class="message-section">
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php else : ?>
+	    <div style="padding:0.3em;">				
+		<ul class="error-section">
+		    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php endif; ?>
+    <?php endif; ?>
+    <div class="detail-btn">
+		<?php if($this->datasetting['linkSystem'] == 2){
+			//----2 setting ios sumareji;
+			?>  
+
+			<?php
+			}else{ ?>
+				<span class="btn btn-m btn-action"><a href="<?php echo $listData->getCreateURL('/topping/add',$params) ?>"><span class="ic-add">新規追加</span></a></span>           
+		<?php }?>
+    </div>        
+<?php 
+    echo $pageNavi_html;
+    echo $pageLink_html;
+    echo $list_html;
+?>
+</form>
+<script>
+    $('#rows').change(function(){
+        var url_search = '';
+        url_search = '/rows/' + $('#rows').val();
+        location.href = '<?php unset($params['rows']); $params['page'] = 1; echo $listData->getCreateURL('/topping/index',$params) ?>'+url_search;
+    });
+</script>
+
+
+

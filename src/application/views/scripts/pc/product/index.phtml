@@ -1,0 +1,262 @@
+<?php
+/**
+ * View list product
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/11
+ */
+//---get URL;
+//---list data
+$session = Globals::getSession();
+if(isset($session->backUrl)){
+    unset($session->backUrl);
+}
+if(isset($session->nameProduct)){
+    unset($session->nameProduct);
+}
+if(isset($session->imageDelete)){
+    unset($session->imageDelete);
+}
+
+
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$params = $req->getParams();
+$header['menuCode'] = array('title'=>'商品ID','hoption'=>'style="width:60px;"  ','option'=>'class="code"  ','sort'=>'menuCode','order'=>'desc');
+$header['category1_name'] = array('title'=>'カテゴリー','hoption'=>'style="width:180px;"  ','option'=>'class="text"  ','sort'=>'category1_name','order'=>'desc');
+$header['thumb'] = array('title'=>'画像','hoption'=>'style="width:100px;"  ','option'=>'class="icon"  ');
+$header['itemName'] = array('title'=>'商品名','hoption'=>'style="width:300px;"  ','option'=>'class="text"  ','sort'=>'itemName','order'=>'desc');
+$header['price'] = array('title'=>'商品単価','hoption'=>'style="width:80px;"  ','option'=>'class="curry"  ','sort'=>'price','order'=>'desc');
+$header['SCP5'] = array('title'=>'カスタムオーダー','hoption'=>'style="width:240px;"  ','option'=>'class="text"  ','sort'=>'SCP5','order'=>'desc');
+$header['itemToppingGroupId'] = array('title'=>'トッピング','hoption'=>'style="width:240px;"  ','option'=>'class="text" style=""','sort'=>'itemToppingGroupId','order'=>'desc');
+$header['suggest'] = array('title'=>'関連商品','hoption'=>'style=""  ','option'=>'class="no-escape-html" style=""');
+
+$data = $this->dataProductList;
+$listData = new Application_Model_Datagrid($data,$header);
+
+//$search_html = $listData->searchList(array('itemName'=>array('title'=>'商品名','value'=>''),
+//                                        'category1_name'=>array('title'=>'カテゴリー','value'=>'') ));
+
+$pageNavi_html = $listData->creatPageNavigation();
+
+$pageLink_html = $listData->creatPageLink();
+$list_html = $listData->createList(array('menuCode'=>array('action'=>'/product/edit','namepost'=>'id_edit','value'=>'menuCode','name' => 'r'),
+                                         'itemName'=>array('action'=>'/product/edit','namepost'=>'id_edit','value'=>'menuCode') ));
+
+
+?>
+<style>
+.datagrid-row {
+    height: 50px;
+}
+</style>
+<form name="frm_setting" id="frm_setting" method="get" action="">
+    
+    <div id="page-title">
+            商品一覧
+    </div>
+    <?php if (!empty($this->message)) : ?>
+	<?php if ($this->success) : ?>
+	    <div style="padding: 0.3em;"> 
+		<ul class="message-section">
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php else : ?>
+	    <div style="padding:0.3em;">				
+		<ul class="error-section">
+		    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+		    <?php foreach ($this->message as $msg): ?>
+			<?php if (!is_array($msg)) : ?>
+			    <li><?php echo $this->escape($msg); ?></li>
+			<?php endif; ?>
+		    <?php endforeach; ?>
+		</ul>
+	    </div>
+	    <div class="clear"></div>
+	<?php endif; ?>
+	<?php endif; ?>
+<?php
+//echo $search_html;
+$itemName = isset($params['item']) ? $this->escape($params['item']) : '';
+$pricegt = isset($params['pricegt']) ?  $this->escape($params['pricegt']) : '';
+$pricelt = isset($params['pricelt']) ?  $this->escape($params['pricelt']) : '';
+$category1_name = isset($params['category']) ?  $this->escape($params['category']) : '';
+
+//---get data Category
+$csv = new Application_Model_Category();
+$data_Categ = $csv->getDataJson1();
+$optionCategory1 = $csv->createOptionCategory($data_Categ['rows'], array('value' => 'code', 'title' => 'name'), $category1_name);
+?>
+    <div id="filter">
+                <div>
+                        <div class="lft">検索条件</div>					
+                        <div class="lft" style="margin: 0 5px 0 10px"><input id="display-search"  type="checkbox"  /></div>
+                        <div class="lft">表示切替</div>
+                        <div class="clr">&nbsp;</div>
+                </div>
+                <div id="searchForm">
+
+                        <table class="data-filter" border="1">					
+                                <tr class="odd">
+                                        <td class="label" width="100px">商品名</td>
+                                        <td width="220px"><input id="item" maxlength="85" name="item" class="name" type="text" value="<?php echo $itemName; ?>" />
+                                            <span class="guide">前方後方一致検索</span>
+                                        </td>
+                                </tr>
+                                <tr class="even">
+                                        <td class="label">販売価格</td>
+                                        <td><input id="pricegt" name="pricegt" class="price" type="text" maxlength="10"  value="<?php echo $pricegt; ?>" />～<input id="pricelt" name="pricelt" class="price" maxlength="10"  type="text" value="<?php echo $pricelt; ?>" />
+                                        <span class="guide">前方後方一致検索</span>
+                                        </td>
+                                </tr>
+                                <tr class="odd">
+                                        <td class="label">カテゴリー</td>
+                                        <td>
+                                            <select id="category" name="category"  class="name">
+                                                <?php echo $optionCategory1 ?>
+                                            </select>
+                                            <!--<input type="hidden" id="category1_name" name="category1_name" class="name" value="<?php // echo $category1_name;?>">-->
+                                        </td>
+                                </tr>		
+                        </table>
+                        <div class="btn-search">
+                                <input class="input-btn" type="button" name="btnSearch" id="btnSearch" value="検索" />
+                        </div>
+                </div>
+    </div>
+    <div class="clr">&nbsp;</div>
+
+    <div class="detail-btn">
+                <?php if($this->datasetting['linkSystem'] == 1){
+                //----1 setting ios tecreji (東芝TEC POS端末連携); pqbao add 2015/03/09
+                ?>  
+                    <span class="btn btn-m btn-normal"><a href="<?php echo $listData->getCreateURL('/tecreji/index',$params) ?>"><span class="ic-data">TECデータ取込</span></a></span>
+
+                <?php
+                } else if($this->datasetting['linkSystem'] == 2){
+                //----2 setting ios sumareji;
+                ?>  
+                    <span class="btn btn-m btn-normal"><a href="<?php echo $listData->getCreateURL('/sumareji/index',$params) ?>"><span class="ic-data">スマレジデータ取込	</span></a></span>
+
+                <?php
+                }else{ ?>
+                    <span class="btn btn-m btn-action"><a href="<?php echo $listData->getCreateURL('/product/add',$params) ?>"><span class="ic-add">新規追加</span></a></span>
+                    <span class="btn btn-m btn-normal"><a href="<?php echo $listData->getCreateURL('/product/import',$params) ?>"><span class="ic-upload">CSVアップロード</span></a></span>
+                    <span class="btn btn-m btn-normal"><a href="<?php echo $listData->getCreateURL('/product/downloadoption',$params) ?>"  ><span class="ic-dl">CSVダウンロード</span></a></span>
+            <?php }?>
+    </div>
+<?php 
+
+echo $pageNavi_html;
+echo $pageLink_html;
+echo $list_html;
+echo $pageLink_html;
+
+?> 
+</form>    
+<div class="clear"></div>
+
+<script>
+
+    $('#btnSearch').click(function(){
+        searchSubmit();
+    });
+    function searchSubmit(){
+        var url_search = '';
+        if($('#item').val() != ''){
+            url_search = url_search + '/item/' + $('#item').val();
+        }
+        if($('#pricegt').val() != ''){
+            url_search = url_search + '/pricegt/' + $('#pricegt').val();
+        }
+        if($('#pricelt').val() != ''){
+            url_search = url_search + '/pricelt/' + $('#pricelt').val();
+        }
+        if($('#category').val() != ''){
+            url_search = url_search + '/category/' + $('#category').val();
+        }
+        location.href = '/product/index'+url_search;
+    }
+    
+    $('#rows').change(function(){
+        var url_search = '';
+        url_search = '/rows/' + $('#rows').val();
+        location.href = '<?php unset($params['rows']); $params['page'] = 1; echo $listData->getCreateURL('/product/index',$params) ?>'+url_search;
+    });
+    
+    $("#display-search").click(function () {
+            $("#searchForm").toggle();
+            if ($('#display-search').attr('checked'))
+            {
+                    $.cookie('CookieKeyVisibleSearchFormItems', 1, {path:'/'});
+            }
+            else
+            {
+                    $.cookie('CookieKeyVisibleSearchFormItems', 0, {path:'/'});
+            }
+    });
+       
+    if ($.cookie('CookieKeyVisibleSearchFormItems') == 1)
+    {
+            $('#display-search').attr('checked', 'checked');
+            $("#searchForm").show();
+    }
+    else
+    {
+            $("#searchForm").hide();
+    }
+    
+    $('.combo-text').removeAttr('style');
+    $('.combo-text').val('<?php echo $category1_name; ?>');
+    
+
+    $(document).ready(function() {	
+		$('.fancybox').fancybox();
+
+		// Change title type, overlay closing speed
+		$(".fancybox-effects-a").fancybox({
+			helpers: {
+				title : {
+					type : 'outside'
+				},
+				overlay : {
+					speedOut : 0
+				}
+			}
+		});
+                
+        //---Enter form search.
+                
+         $('#item').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+        $('#pricegt').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+        $('#pricelt').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+        $('#category').keypress(function(event){
+                if ( event.which == 13 ) {
+                    searchSubmit();
+                }
+        });
+		
+		$('th.count').css('width', '20px');
+    });
+
+</script>
+
+

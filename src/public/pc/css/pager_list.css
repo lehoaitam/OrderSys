@@ -1,0 +1,70 @@
+@charset "utf-8";
+.pager {
+    border-collapse: collapse;
+    display: block;
+    line-height: 100%;
+    margin: 0;
+    padding: 0;
+	height: 27px;	
+}
+
+.pager-section {
+	float: left;
+}
+
+.pager-counter {
+	padding: 5px;
+}
+.pager-texter-doct{
+    padding: 0 !important;
+    display: block;
+    float: left;
+    margin-top: 7px;
+    font-weight: normal;
+    text-decoration: none;   
+}
+
+.lists-from-group{
+    padding: 5px !important;
+    text-align: left;
+    font-size: 10.5pt;
+    font-weight: bold;
+}
+.extenion th {
+    width:160px;
+}
+.spinner{
+	display:inline-block;
+	white-space:nowrap;
+	font-size:12px;
+	margin:0;
+	padding:0;
+}
+.spinner-text{
+	font-size:12px;
+	border:0px;
+	line-height:20px;
+	height:20px;
+	padding:0px;
+	height: 22px;
+        width: 88px ;
+}
+.spinner-arrow{
+	display:inline-block;
+	vertical-align:top;
+	padding: 1px;
+        margin-left: -22px;
+}
+.spinner-arrow-up,.spinner-arrow-down{
+	display:block;
+	background:#E0ECF9 url('../../images/spinner_arrow_up.gif') no-repeat 5px 4px;
+	font-size:1px;
+	height: 13px;
+        width: 20px ;
+}
+.spinner-arrow-down{
+	background:#E0ECF9 url('../../images/spinner_arrow_down.gif') no-repeat 5px 3px;
+}
+.spinner-arrow-hover{
+	background-color:#ECF9F9;
+}

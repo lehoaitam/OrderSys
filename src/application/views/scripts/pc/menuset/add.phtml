@@ -1,0 +1,69 @@
+<?php
+/**
+ * Add new menuset
+ * PHP version 5.3.9
+ * @author Nguyen Huu Tam
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2013/03/02
+ */
+?>
+
+<div class="section">
+	<form name="frm_add" id="frm_add" method="post" action="/menuset/do-add">
+	    <?php echo $this->csrf; ?>
+	    <div id="page-title">
+		新規メニュー登録
+	    </div>
+	    <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+			    <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">			
+				<ul class="error-section">
+				    <li><strong>メニューの登録に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+	    <div class="edit-tbl-wrapper">
+			<table class="edit-detail-tbl common-detail-tbl">
+				<?php $indexRow = 1; ?>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require" width="100px"><span>メニュー名</span></th>
+					<td width="450px">
+						<input type='text' size="40" id="menusetName" name="menusetName" maxlength="85" 
+							value="<?php if (isset($this->data['menusetName'])) { echo $this->escape($this->data['menusetName']); } ?>" />
+                        <span class="guide">85文字以内。</span>
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require" width="100px"><span>言語</span></th>
+					<td width="450px">
+						<?php echo $this->formSelect('language', $this->language, array('style' => 'width:150px'), $this->languages) ?>
+					</td>
+				</tr>
+			</table>
+	    </div>
+	    <div class="btn-container">
+			<div class="edit-btn-article">
+				<input id="btnsave" type="submit" class="input_btn" role="button" value="登録" />
+			</div>
+	    </div>
+	</form>
+</div>

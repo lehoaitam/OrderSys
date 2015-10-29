@@ -1,0 +1,125 @@
+<?php
+/**
+ * Add category form
+ * PHP version 5.3.9
+ * @author Phan Quoc Bao
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/04/24
+ */
+?>
+
+<div class="section">
+	<form name="frm_add" id="frm_add" method="post" action="" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			動画登録
+		</div>
+                <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>動画の登録に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+                        <div class="edit-tbl-wrapper">
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require " width="100px"><span>ファイル</span></th>
+                                                <td width="450px">
+                                                        <input type="file" id="videos" size="50" name="videos[]" />
+                                                        <span class="guide">動画サイズの上限: 100.0MB</span>
+                                                </td>
+                                        </tr>
+                                </table>
+                        </div>
+                        <div class="btn-container">
+                                <div class="edit-btn-article">
+                                        <input id="btnsave" type="button" class="input_btn" role="button" value="登録" />
+                                </div>
+                        </div>
+        </form>
+</div>
+
+<script>
+    var frm_add        = '#frm_add';
+    var btnsave        = '#btnsave';
+
+    $(btnsave).bind('click', function(){
+        var files = $('input[name|="videos[]"]');
+        var isEmptyFile = false;
+        files.each(function(){
+            if ($(this).val() != '') {
+                isEmptyFile = true;
+                return true;
+            }
+        });
+        
+        if (isEmptyFile == true) {
+            fieldObj = document.getElementById("videos");
+            if(checkFile(fieldObj)){
+                $(frm_add)[0].action = '/video/addexecute';
+                $(frm_add).submit();
+            }           
+            
+        } else {
+            alert('<?php echo $this->alertSelect; ?>');
+            return false;
+        }
+    });
+    
+    function checkFile(fieldObj)
+    {
+        var FileName  = fieldObj.value;
+        FileName = FileName.substr(FileName.lastIndexOf('\\')+1);
+        var FileExt = FileName.substr(FileName.lastIndexOf('.')+1);
+        var FileSize = fieldObj.files[0].size;
+        
+        var listNameFileExit = '<?php echo $this->listNameExit; ?>';
+        arrFileName = listNameFileExit.split(',');
+        
+        var allowExtensions = '<?php echo $this->allowExtensions; ?>';
+        arrExt = allowExtensions.split(',');
+        var maxSize = <?php echo $this->maxSize; ?>;
+        //---check exit file
+        if(arrFileName.indexOf(FileName) > 0){
+            alert('<?php echo $this->msgE701_Existed; ?>'.replace("%s", FileName));
+            return false;
+        }
+        
+        //---check allowExtensions
+        if( arrExt.indexOf(FileExt) <= 0 ){
+            alert('<?php echo $this->msgE701_FileExtensionFalse; ?>'.replace("%value%", FileName));
+            return false;
+        }
+        
+        //---check maxSize
+        if( FileSize > maxSize){
+            var msgError = '<?php echo $this->msgE701_FileSizeMax; ?>'.replace("%value%", FileName);
+            alert(msgError.replace("%max%", maxSize) );
+            return false;
+        }
+        
+        return true;
+    }
+ </script>

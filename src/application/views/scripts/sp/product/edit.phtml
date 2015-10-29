@@ -1,0 +1,224 @@
+<?php
+/**
+ * Edit product form
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/16
+ */
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$session = Globals::getSession();
+
+$modelList_product = new Application_Model_Datagrid();
+$params = $req->getParams();
+$url = $modelList_product->getCreateURL('/product/index',$params) . (isset($this->data['menuCode']) ? '#r' . $this->data['menuCode'] : '');
+if(isset($session->backUrl)){
+    $url = $session->backUrl;
+}else{
+    $session->backUrl = $url;
+}
+
+//---get data Category => list box
+$csv = new Application_Model_Category();
+$data_Categ = $csv->getDataJson1();
+$optionCategory1   = $csv->createOptionCategory($data_Categ['rows'],array('value'=>'code','title'=>'name'),isset($this->data['category1_code'])?$this->escape($this->data['category1_code']):'','');
+
+//---Get data Topping => list box
+$csv = new Application_Model_Topping();
+$data_Topping = $csv->getData();
+$optionTopping   = $csv->createOptionToppiong($data_Topping,array('value'=>'itemToppingGroupId','title'=>'itemToppingGroupName'),isset($this->data['itemToppingGroupId'])?$this->escape($this->data['itemToppingGroupId']):'','');
+
+//---get data Product
+$data_Product = $this->indexModel->getDataJson();
+$optionSuggest1Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), isset($this->data['suggest1'])?$this->escape($this->data['suggest1']):'');
+$optionSuggest2Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), isset($this->data['suggest2'])?$this->escape($this->data['suggest2']):'');
+$optionSuggest3Product   = $this->indexModel->createOptionProd($data_Product['rows'], array('value' => 'menuCode', 'title' => 'itemName'), isset($this->data['suggest3'])?$this->escape($this->data['suggest3']):'');
+
+//---set session nameProduct if session null    
+if(!isset($session->nameProduct)){
+    $session->nameProduct = $this->escape($this->data['itemName']);
+}
+//---set session imageproduct
+if(!isset($session->imageDelete)){
+    $session->imageDelete = isset($this->data['image'])?$this->data['image']:'';
+}
+?>
+<div class="section">
+	<form name="frm_edit_product" id="frm_edit_product" method="post" action="" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			<?php echo $session->nameProduct; ?>の編集
+		</div>
+                <input type="hidden" id="no" name="no" value="<?php echo $this->escape($this->data['no']); ?>" />
+		<?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>商品の編集に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+		<div class="edit-tbl-wrapper">
+			<table class="data-filter" border="1" width="100%">
+				<?php $indexRow = 1; ?>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label" nowrap="true"><span>商品ID</span></th>
+					<td>
+						<input type="text" style="width:80px" id="menuCode" name="menuCode" maxlength="32" value="<?php if (isset($this->data['menuCode'])): echo $this->escape($this->data['menuCode']); endif ?>" />
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label require" nowrap="true"><span>商品名</span></th>
+					<td>
+						<input type="text" size="50" id="itemName" name="itemName" maxlength="85" value="<?php if (isset($this->data['itemName'])) { echo $this->escape($this->data['itemName']);}?>" />
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label require" nowrap="true"><span>カテゴリー名</span></th>
+					<td>
+						<select id="category1_code" name="category1_code" style="160px;">
+                                                    <?php echo $optionCategory1; ?>
+                                                </select>
+						<!--<input type="hidden" id="category1_name" name="category1_name">-->
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label require" nowrap="true"><span>商品単価</span></th>
+					<td>
+						<input type="text" style="width:80px;text-align: right;" id="price" name="price" maxlength="10" value="<?php if (isset($this->data['price']) && $this->data['price'] != '') { echo $this->escape($this->data['price']); }else{ echo '0';} ?>"/>
+						<label>円</label>
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label" nowrap="true">商品画像</th>
+					<td class="text_input">
+						<?php $hasImage = !empty($this->data['image']); ?>
+						<div id="div_image_product" class="edit_img" style="display:<?php echo $hasImage ? 'inline-block' : 'none'; ?>">
+							<img width="150px" height="113px" src="/product/image/name/<?php echo $this->escape($this->data['image']) ?>" />
+							<div id="delete_image" class="del_btn" style="cursor:pointer"><img title="削除する" width="30px" src="/images/del.png"/></div>
+							<input type="hidden" id="image_product" name="image_product" value="<?php echo (!empty($this->data['image']) ? $this->escape($this->data['image']) : '') ?>">
+							<input type="hidden" name="image_product_old" value="<?php echo (!empty($this->data['image']) ? $this->escape($this->data['image']) : '') ?>">
+						</div>
+						<input id="p_image_file" type="file" name="p_image_file[]" class="input" style="width:160px;height:25px;display:<?php echo $hasImage ? 'none' : 'block'; ?>">						
+					</td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<td class="label">
+						<label>説明</label>
+					</th>
+					<td>
+						<textarea id="desc" name="desc" rows="6" col="30" maxlength="1000"><?php if (isset($this->data['desc'])) { echo $this->escape($this->data['desc']); } ?></textarea>
+					</td>
+				</tr>
+                <?php if ($this->showPrinterInput) { ?>
+                <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">					
+					<td class="label">プリンター</td>
+					<td>
+						<table class="sub-input" style="width:1%">
+							<tbody>
+                                <tr>
+                                    <th align="right" nowrap="true">
+                                        <div style="display:inline-block;white-space: nowrap">
+                                                IP&nbsp;
+                                                <input type="text" style="width:100px" id="PrinterIP" name="PrinterIP" value="<?php if (isset($this->data['PrinterIP'])) { echo $this->escape($this->data['PrinterIP']);}?>" />
+                                        </div>
+                                        <div style="display:inline-block;white-space: nowrap">
+                                                ポート&nbsp;
+                                                <input type="text" style="width:100px" id="PrinterPort" name="PrinterPort" maxlength="10" value="<?php if (isset($this->data['PrinterPort'])) { echo $this->escape($this->data['PrinterPort']); }?>" />
+                                        </div>
+                                        <div style="clear: both;float: left; margin-left: 10px; text-align: left;">
+                                            <input type="hidden" name="Printer" id="Printer">
+                                        </div>
+                                    </th>                                        
+                                </tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+                <?php } ?>
+			</table>
+		</div>
+                <div class="btn-container">
+				<div class="edit-btn-article">
+					<span class="btn btn-l btn-action lft" style="padding:3px"><a href="<?php echo $url; ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+                                        <input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="更新" value="更新">					
+				</div>
+                </div>
+	</form>
+</div>
+	
+<div style="text-align:center;padding-top:12px"><a href="#top">↑ﾍﾟｰｼﾞﾄｯﾌﾟ</a></div>
+
+<script>
+    var price          = '#price';
+    var image          = '#image';
+    var loadImage      = '#loadImage';
+    var btnsave_t      = '#btnsave-top';
+    var btnsave_b      = '#btnsave-bottom';
+    var frm_edit_product = '#frm_edit_product';
+	var delete_image	= '#delete_image';
+
+
+	$(document).ready(function() {	
+		$('.fancybox').fancybox();
+
+		// Change title type, overlay closing speed
+		$(".fancybox-effects-a").fancybox({
+			helpers: {
+				title : {
+					type : 'outside'
+				},
+				overlay : {
+					speedOut : 0
+				}
+			}
+		});
+	});
+
+    function saveProduct() {
+        $(frm_edit_product)[0].action = '/product/editexecute';
+        $(frm_edit_product).submit();
+    }
+
+    $(btnsave_t).bind('click', function(){
+        saveProduct();
+    });
+	
+    $(btnsave_b).bind('click', function(){
+        saveProduct();
+    });
+
+    $(delete_image).bind('click', function() {
+        $('#div_image_product').css('display', 'none');
+        $('#p_image_file').css('display', 'block');
+        $('#image_product').val('');
+    });
+    	
+     $(function(){
+         $(price).numberbox({
+            min:0,
+            precision:0
+        });
+    });
+
+    $('#menuCode').attr('readonly', 'readonly');
+ </script>

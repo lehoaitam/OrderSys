@@ -1,0 +1,224 @@
+<?php
+/**
+ * Edit topping group
+ * PHP version 5.3.9
+ * @author Nguyen Dinh Bao
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2014/04/23
+ */
+
+$req        = Zend_Controller_Front::getInstance()->getRequest();
+$session    = Globals::getSession();
+
+$modelList_product  = new Application_Model_Datagrid();
+$params             = $req->getParams();
+$url                = $modelList_product->getCreateURL('/topping/index', $params);
+if (isset($session->backUrl)) {
+    $url = $session->backUrl;
+} else {
+    $session->backUrl = $url;
+}
+
+if(!isset($session->nameTopping)){
+    $session->nameTopping = $this->escape($this->data['itemToppingGroupName']);
+}
+?>
+<form name="frm_edit" id="frm_edit" method="post" enctype="multipart/form-data">
+    <?php echo $this->csrf; ?>
+    <div id="page-title">
+        <?php echo $session->nameTopping ?>の編集
+    </div>
+
+    <?php if (!empty($this->message)) : ?>
+            <?php if ($this->success) : ?>
+                <div style="padding: 0.3em;"> 
+                    <ul class="message-section">
+                        <?php foreach ($this->message as $msg): ?>
+                            <?php if (!is_array($msg)) : ?>
+                                <li><?php echo $this->escape($msg); ?></li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            <?php else : ?>
+                <div style="padding:0.3em;">				
+                    <ul class="error-section">
+						<?php if (!$this->removeFirstLineErrorMessage) { ?><li><strong>トッピンググループの登録に失敗しました。</strong></li><?php } ?>
+                        <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+                        <?php foreach ($this->message as $msg): ?>
+                            <?php if (!is_array($msg)) : ?>
+                                <li><?php echo $this->escape($msg); ?></li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            <?php endif; ?>
+    <?php endif; ?>
+                
+    <?php
+    //---get data Category
+    $csv = new Application_Model_Index();
+    $data_Prod = $csv->getDataJson();
+    ?>       
+    <div class="detail-tbl-wrapper">
+        <table class="data-filter" border="1" width="100%">					
+            <tr class="odd">
+                <td class="label" style="width: 300px"><span>トッピンググループID</span></td>
+                <td><input type="text" value="<?php if (isset($this->data['itemToppingGroupId'])) { echo $this->escape($this->data['itemToppingGroupId']);}?>" maxlength="32" name="itemToppingGroupId" id="itemToppingGroupId" style="width:80px" readonly="readonly">
+                    <span class="guide">トッピンググループIDは自動採番されます。</span>
+                </td>
+            </tr>
+            <tr class="even">
+                <td class="label require" style="width: 300px"><span>トッピンググループ名</span></td>
+                <td><input id="itemToppingGroupName" name="itemToppingGroupName" class="name" style="width:420px" type="text" value="<?php if (isset($this->data['itemToppingGroupName'])) { echo $this->escape($this->data['itemToppingGroupName']);}?>" />
+                    <span class="guide">30文字以内。</span>
+                </td>
+            </tr>
+            <tr class="odd">
+                <td class="label" style="width: 300px"><span>トッピング選択条件</span></td>
+                <td>
+                    <label>必須選択数</label>
+                    <input id="min" name="min" maxlength="3" class="name selection" type="text" value="<?php if (isset($this->data['min'])) { echo $this->escape($this->data['min']);}?>" />
+                    <label>上限選択数</label>
+                    <input id="max" name="max" maxlength="3" class="name selection" type="text" value="<?php if (isset($this->data['max'])) { echo $this->escape($this->data['max']);}?>" />
+                    <span class="guide">トッピングの必須選択数と、上限選択数(最大999点)を指定します。<br/>
+					必須選択数が未入力の場合は0となり、上限数が未入力の場合は最大の999となります。</span>
+                </td>
+            </tr>           
+        </table>				
+    </div>
+
+    <div class="clr">&nbsp;</div>
+
+    <div id="data-grid">
+        <table id="ToppingGroup" class="grid" cellpadding="0" cellspacing="0" border="1" width="100%">
+            <thead>
+                <tr>
+                    <th style="width: 100px !important"></th>						
+                    <th>トッピンググループ名</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php                         
+                $count = 1;                
+                $topping = new Application_Model_ToppingGroupItem();                
+                $data = $topping->filterArray($this->data);                
+                $this->dataItem = ($this->msg) ? $data : $this->dataItem;
+               
+                $count_menu = count($this->dataItem);
+                foreach($this->dataItem as $item){
+                    if($item['itemId']!='' && $item['itemId']!=0 && $item['itemId']!=null){
+                        if($data_Prod['rows']!='') {
+                            $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), $this->escape($item['itemId']));
+                        }
+                        else {
+                            $optionProd = '';
+                        }
+                        $class = ($count%2) ? 'odd' : 'even';
+                        echo '<tr class="'.$class.'">
+                                <td class=" sorting_1">'.$count.'</td>
+                                <td class="">                        
+                                    <select id="menu'.$count.'" name="menu'.$count.'"  class="name">
+                                        <option value=""></option>
+                                        '.$optionProd.'
+                                    </select>
+                                    <input type="hidden" name="itemToppingId'.$count.'" value="'.$item['itemToppingId'].'" />
+                                    <span class="guide">商品を選択してください。</span>
+                                </td>
+                            </tr>';
+                        $count ++;
+                    }
+                }                                   
+                ?>                   
+            </tbody>									
+        </table>				
+    </div>	        
+    <div>		
+        <input type="button" id="AddTopping" onclick="addRow()" value="1レコード追加" />
+    </div>
+        
+    <div class="btn-container">
+        <div class="edit-btn-article">
+            <span class="btn btn-l btn-action lft"><a href="<?php echo $url; ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+            <span class="btn btn-d btn-delete rft"><a id="btndelete-bottom" href="javascript:void(0);"><span class="ic-delete">削除</span></a></span>
+            <input type="button" value="更新" alt="更新" id="btnsave" class="input_btn_update rft">					
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function() {
+        $("#min, #max").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl+A
+                (e.keyCode == 65 && e.ctrlKey === true) || 
+                // Allow: home, end, left, right
+                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                    // let it happen, don't do anything
+                    return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    var count = <?php echo $count_menu +1 ?>;
+
+    $(document).ready(function() {
+        $('table#ToppingGroup').dataTable({
+            'bFilter': false,
+            'bInfo': false,
+            'bSort': false,
+            'bPaginate': false,
+            "oLanguage": {
+                "sEmptyTable": "トッピンググループは登録されていません。"
+            }
+        });
+        
+        if(count == <?php echo Globals::getApplicationConfig('subcomment')->max_list ?>){
+            document.getElementById("AddTopping").disabled = true;
+        }
+        // Add initial row
+        //addRow();
+    } );
+    
+    function addRow() {
+        <?php
+            if($data_Prod['rows']!='') {
+                $optionProd = $csv->createOptionProd($data_Prod['rows'], array('value' => 'menuCode', 'title' => 'itemName'), '');
+            }
+            else {
+                $optionProd = '';
+            }
+        ?>       
+        $('table#ToppingGroup').dataTable().fnAddData( [				
+            '<div style="text-align: center">'+count+'</div>',
+            '<select id="menu' + count + '" name="menu' + count + '" class="name"><option value=""></option><?php echo $optionProd ?></select><input type="hidden" name="itemToppingId' + count + '" value="-1" /><span class="guide">商品を選択してください。</span>'
+        ] );       
+        count++;
+        if(count == <?php echo Globals::getApplicationConfig('subcomment')->max_list ?>){
+            document.getElementById("AddTopping").disabled = true;
+        }
+    }
+
+    //Get data fill suggest1 combobox
+    var frm_edit = ('#frm_edit');
+    var btnsave  = ('#btnsave');
+
+    $(btnsave).bind('click', function(){
+        //if (!confirm('<?php echo $this->confirmEdit; ?>')) return;       
+        $(frm_edit)[0].action = '/topping/editexecute';
+        $(frm_edit).submit();
+    });
+    
+    $('#btndelete-bottom').click(function(){
+        if (!confirm('<?php echo sprintf($this->confirmDel, $session->nameTopping );?>')) return;
+            $(frm_edit)[0].action = '/topping/delete/id_edit/<?php if (isset($this->data['itemToppingGroupId'])): echo $this->escape($this->data['itemToppingGroupId']); endif ?>';
+            $(frm_edit).submit();
+    });
+    
+</script>

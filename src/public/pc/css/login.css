@@ -1,0 +1,392 @@
+@charset "utf-8";
+
+* {
+    padding:0;
+    margin:0;
+}
+a:active , a:hover , a:visited {
+    outline:none;
+    border:none;
+    text-decoration:none;
+}
+
+a img {
+    border:none;
+}
+
+:focus {
+    -moz-outline-style:none;
+}
+body {
+    background:#E4E8E9;	
+    font-family: "Lato","Roboto","Hiragino Kaku Gothic ProN","hiragino kaku gothic pro","・ｽq・ｽ・ｽ・ｽM・ｽm・ｽp・ｽS Pro W3","Meiryo","・ｽ・ｽ・ｽC・ｽ・ｽ・ｽI",sans-serif !important;
+    color:#606060;
+    z-index:-1;
+    font-size: 13px;
+}
+
+/* Login page */
+
+#login-form {
+    width: 400px;
+    margin: 52px auto 0;
+    text-align: right;
+}
+
+#login-content {
+    margin-top: 25px;
+}
+
+.login-label {
+    width: 80px;
+    float: left;
+    padding: 10px 27px 0 0;
+    text-shadow: 1px 1px 1px #FFFFFF;
+    font-size: 15px;
+    font-weight: bold;
+    color: #000;
+}
+
+.login-input {
+    width: 293px;
+    float: right;	
+}
+
+.login-remember {
+    text-align: left;
+    font-size: 13px;
+    color: #000;
+    text-shadow: 1px 1px 1px #FFFFFF;
+}
+
+.login-row {
+    padding: 5px 0;
+}
+
+.login-input input.login-input-text {
+    border: 2px solid #37535E;
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px #FFFFFF;
+    outline-color: #67B2E3;
+    padding: 8px;
+    width: 273px;
+    height: 20px;
+}
+
+#login-button {
+    margin-top: 5px;
+}
+
+#login-button input {
+    font-family: "Lato","Roboto","Hiragino Kaku Gothic ProN","hiragino kaku gothic pro","ﾆ智ﾆ停ｰﾆ樽ﾆ知ﾅpﾆ担 Pro W3","Meiryo","ﾆ陳・辰ﾆ椎ﾆ棚",sans-serif !important;
+    background: url("../../images/bg_btn_action.png") center center repeat-x;
+    border: 1px solid #0A437E;
+    box-shadow: 0 0 2px #999999 inset;
+    color: #FFFFFF;
+    text-shadow: 0 0 3px #000000;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    line-height: 100%;
+    margin: 0;
+    position: relative;
+    height: 44px;
+    font-size: 14px;
+}
+
+#login-button input:hover {
+    border-color: #1A8CD6;
+    box-shadow: 0 0 5px #67B2E3;
+    text-decoration: none;
+}
+
+#login-info {
+    margin-top: 25px;
+    font-size: 11px;
+    color: #000;
+    text-shadow: 1px 1px 1px #FFFFFF;
+}
+
+#login-footer {
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* List page */
+#container {	
+}
+
+#header {
+    height: 80px;
+    background: #000;
+    color: #fff;
+}
+
+#ipad-title {
+    background: #fff;
+    border-radius: 3px;
+    float: left;
+    padding: 0 10px;
+    margin: 18px 0 0 20px;
+    font-weight: bold;
+    height: 44px;
+    float: left;
+    color: #000;
+    font-size: 32px;
+}
+
+.litle-title {
+    font-size: 20px;
+}
+
+#page-name {
+    float: left;
+    padding: 26px 20px 23px 10px;
+    color: #fff;
+    border-right: solid 1px #949494;
+    font-size: 20px;
+}
+
+#customer-id,
+#number-store {
+    float: right;
+    padding: 50px 30px 2px;
+}
+
+#number-store {
+}
+
+#logout {
+    float: right;
+    padding: 50px 20px 5px 20px;
+    border-left: 1px solid #949494;
+}
+
+#logout a {
+    color: #fff;
+    text-decoration: none;
+}
+
+#logout a:hover {
+    color: #E5E5E5;
+    text-decoration: none;
+}
+
+#menu {		
+}
+
+#menu ul#main-menu {
+    width: 100%;
+    list-style: none;
+    background: #168de9;
+    padding-left: 7px;
+}
+
+#menu ul#main-menu li,
+#sub-menu ul li {
+    display: inline;
+    margin-left: -7px;
+}
+
+#menu ul#main-menu li a ,
+#sub-menu ul li a {
+    text-decoration: none;
+    color: #fff;
+    display: inline-block;
+    padding: 10px 20px;
+    border-left: solid 1px #93cdfd;
+}
+
+#menu ul#main-menu li a:hover {
+    background: #5cabed;
+}
+
+#sub-menu{
+    height: 47px;
+    background: #5cabed;
+}
+
+#sub-menu ul  li  a{
+    background: #5cabed;
+}
+
+#sub-menu ul {
+    display: none;
+}
+
+#sub-menu ul li a {
+    padding: 10px 20px 11px;
+}
+
+#sub-menu ul li a:hover {
+    background: #68b5f4;
+}
+
+#filter {
+    margin: 10px 0;
+}
+
+table.data-filter {
+    border: solid 2px #D6D6D6;
+    /*border-radius: 5px;*/
+    background: #F9F9F9;
+    box-shadow: 1px 1px 1px #E0E0E0;
+    width: 500px;
+    font-size: 14px;
+    margin: 0 auto;
+    border-collapse: collapse;	
+}
+
+table.data-filter .top-filter input{
+    float: left;
+}
+
+table.data-filter .top-filter span {
+    float: left;
+    margin: 5px 0 0 10px;
+}
+
+table.data-filter td.label {
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+table.data-filter input,
+table.data-filter select {
+    height: 30px;
+}
+
+table.data-filter select {
+    padding: 5px;	
+}
+
+table.data-filter td {
+    padding: 5px;
+    border: solid 1px #EFEFEF;
+}
+
+table.data-filter tr.even {
+    background: #E0F1FF;
+}
+
+input.name,
+select.category {
+    width: 215px;
+}
+
+input.price {
+    width: 100px;
+}
+
+.input-btn {
+    background: url("../../images/bg_btn_action.png") center center repeat-x;
+    border: 1px solid #0A437E;
+    box-shadow: 0 0 2px #999999 inset;
+    color: #FFFFFF;
+    text-shadow: 0 0 3px #000000;
+    border-radius: 14px;
+    font-size: 0.9em;
+    padding: 5px 10px;	
+    cursor: pointer;
+}
+
+#page-title {
+    padding: 5px;
+    margin-top: 10px;
+    border-left: solid 5px #168DE9;
+    background: #fff;	
+}
+
+#content {
+    margin: 0 20px;
+}
+
+.detail-btn {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.btn-action a {
+    background: url("../../images/bg_btn_action.png") center center repeat-x;
+    border: 1px solid #000000;   
+    color: #FFFFFF;
+    text-shadow: 0 0 3px #000000;
+    border-radius: 4px;
+    box-shadow: 0 0 2px #FFFFFF inset;
+    cursor: pointer;
+    display: inline-block;
+    padding: 8px 8px 8px 4px;
+    text-decoration: none;
+}
+
+.btn-normal a {
+    background: url("../../images/bg_btn_normal.png") center center repeat-x;
+    border: 1px solid #999999;
+    color: #000000;
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0.6), 1px 1px 0 rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    box-shadow: 0 0 2px #FFFFFF inset;
+    cursor: pointer;
+    display: inline-block;
+    padding: 8px 8px 8px 4px;
+    text-decoration: none;
+}
+
+.btn .ic-add {
+    background: url("../../images/ic_add.png") center center repeat-x;
+    padding-left: 20px;
+}
+
+.btn .ic-upload {
+    background: url("../../images/ic_upload.png") center center repeat-x;
+    padding-left: 20px;
+}
+
+.btn .ic-dl {
+    background: url("../../images/ic_dl.png") center center repeat-x;
+    padding-left: 20px;
+}
+
+select.short-select {
+    padding: 3px;
+    width: 100px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.error {
+    margin-top: 25px;
+    border: solid 1px #F99E9D;
+    border-radius: 10px;
+    background: #FFE3E2;
+    padding: 10px;
+    text-align: left;
+}
+
+.ui-icon-alert {
+    font-weight: bold;
+    background: url("../../images/warn.png") left top no-repeat;
+    padding-left: 25px;
+}
+
+ul.error_list {
+    margin-left: 25px;
+}
+
+#login-ipad-title {
+    text-align: center;
+}
+
+.clr {
+    clear:both;
+    height:1px !important;
+    line-height:1px !important;
+    display:block;
+}

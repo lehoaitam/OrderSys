@@ -1,0 +1,99 @@
+<?php
+/**
+ * Import data
+ * PHP version 5.3.9
+ * @author Nguyen Huu Tam
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/09/05
+ */
+?>
+<?php 
+
+$req = Zend_Controller_Front::getInstance()->getRequest();
+$session = Globals::getSession();
+
+$modelList_product = new Application_Model_Datagrid();
+$params = $req->getParams();
+$url = $modelList_product->getCreateURL('/product/index',$params);
+if(isset($session->backUrl)){
+    $url = $session->backUrl;
+}else{
+    $session->backUrl = $url;
+}
+
+?>
+<div class="section">
+	<form name="import" id="import" method="post" action="" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			スマレジデータ取込
+		</div>		
+                <!-- MESSAGE BEGIN -->
+                <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>スマレジデータ取込の登録に失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php  foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+		<div class="edit-tbl-wrapper">
+			<table class="edit-detail-tbl common-detail-tbl">
+				<?php $indexRow = 1; ?>
+                                <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require" width="100px"><span>契約ID</span></th>
+					<td width="450px">
+                        <input type="text" size="45" id="contractId" value="<?php echo isset($this->data['contractId'])?$this->escape($this->data['contractId']):''; ?>" name="contractId" />
+                        <span class="guide">スマレジ契約IDを入力してください。</span>
+                    </td>
+				</tr>
+				<tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+					<th class="common-tbl-row require"><span>アクセストークン</span></th>
+					<td>
+                        <input type="text" size="45" id="at" value="<?php echo isset($this->data['at'])?$this->escape($this->data['at']):'' ?>" name="at" />
+                        <span class="guide">ウェイターで発行したアクセストークンを設定してください。</span>
+                    </td>
+				</tr>
+                                
+			</table>
+<!--                    <input type="hidden"  id="url" value="<?php // echo $this->escape($this->data['url']) ?>" name="url" />
+                    <input type="hidden" id="user" value="<?php // echo $this->escape($this->data['user']) ?>" name="user" />
+                    <input type="hidden"  id="password" value="<?php // echo $this->escape($this->data['password']) ?>" name="password" />-->
+
+                </div>
+                <div class="btn-container">
+				<div class="edit-btn-article">
+					<span class="btn btn-l btn-action lft"><a href="<?php echo $url; ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+                                        <input type="button" class="input_btn_update rft" id="btn-import" name="btn-import" alt="データ取込" value="データ取込">					
+				</div>
+                </div>
+	</form>
+</div>
+<script>
+    var frm_sumareji = '#import';
+    $('#btn-import').click(function(){
+//        if (confirm('<?php // echo $this->msgConfirmImport; ?>')) {
+            $(frm_sumareji)[0].action = '/sumareji/import-data';
+            $(frm_sumareji).submit();
+//        }
+    });
+</script>

@@ -1,0 +1,101 @@
+<?php
+/**
+ * import product
+ * PHP version 5.3.9
+ * @author pqbao
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2015/03/09
+ */
+?>
+<?php
+    $req = Zend_Controller_Front::getInstance()->getRequest();
+    $session = Globals::getSession();
+    $modelList_product = new Application_Model_Datagrid();
+    $params = $req->getParams();
+    $url = $modelList_product->getCreateURL('/product/index',$params);
+    if(isset($session->backUrl)){
+        $url = $session->backUrl;
+    }else{
+        $session->backUrl = $url;
+    }
+    
+?>
+<div class="section">
+	<form name="frm_upload" id="frm_upload" method="post" action="" enctype="multipart/form-data">
+		<?php echo $this->csrf; ?>
+		<div id="page-title">
+			東芝TECデータ取込
+		</div>
+                <?php if (!empty($this->message)) : ?>
+			<?php if ($this->success) : ?>
+                            <div style="padding: 0.3em;"> 
+				<ul class="message-section">
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php else : ?>
+			    <div style="padding:0.3em;">				
+				<ul class="error-section">
+				    <li><strong>データのインポートに失敗しました。</strong></li>
+				    <li><strong>エラーが発生しました。エラーメッセージをご確認下さい。</strong></li>
+				    <?php foreach ($this->message as $msg): ?>
+					<?php if (!is_array($msg)) : ?>
+					    <li><?php echo $this->escape($msg); ?></li>
+					<?php endif; ?>
+				    <?php endforeach; ?>
+				</ul>
+			    </div>
+			    <div class="clear"></div>
+			<?php endif; ?>
+	        <?php endif; ?>
+                        <div class="edit-tbl-wrapper">
+                            <table class="edit-detail-tbl common-detail-tbl">
+                                        <?php $indexRow = 1; ?>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require"><span>商品ファイル(Fumenu.csv)</span></th>
+                                                <td>
+                                                       <input id="fumenu_csv" type="file" name="fumenu_csv" class="input" size="60"><br>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require"><span>大カテゴリーファイル(GP.DAT)</span></th>
+                                                <td>
+                                                       <input id="gp_dat" type="file" name="gp_dat" class="input" size="60"><br>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require"><span>小カテゴリーファイル(FUDP)</span></th>
+                                                <td>
+                                                       <input id="fudp_dat" type="file" name="fudp_dat" class="input" size="60"><br>
+                                                </td>
+                                        </tr>
+                                        <tr class="<?php echo $indexRow % 2 == 0 ? 'odd' : 'even';$indexRow++; ?>">
+                                                <th class="common-tbl-row require"><span>カスタムオーダーファイル(FSCP)</span></th>
+                                                <td>
+                                                       <input id="fscp_dat" type="file" name="fscp_dat" class="input" size="60"><br>
+                                                </td>
+                                        </tr>
+                                </table>
+                        </div>
+                        <div class="btn-container">
+                            <div class="edit-btn-article">
+                                    <span class="btn btn-l btn-action lft"><a href="<?php echo $url; ?>"><span class="ic-normal">一覧に戻る</span></a></span>	
+                                    <input type="button" class="input_btn_update rft" id="btnsave-bottom" alt="データ取込 " value="データ取込 " onclick="uploadCsv()">					
+                            </div>
+                        </div>
+        </form>
+</div>
+<script>
+    var frm_upload = '#frm_upload';
+
+    function uploadCsv(){
+            $(frm_upload).attr('action', '/tecreji/uploaddata');
+            $(frm_upload).submit();
+    }    
+
+</script>

@@ -1,0 +1,28 @@
+<!DOCTYPE html> 
+<html lang="ja"> 
+<head> 
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="HandheldFriendly" content="true">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="神戸を拠点に広範囲で活動するSIベンダー神戸デジタル・ラボ(KDL)です。ファクトベースに基づいたWEBシステムの導入で貴社の事業戦略を加速させませんか" />
+<meta name="keywords" content="セルフオーダー,ネットサービスサイエンス,マッシュアップファクトリー,プロアクティブディフェンス,Webの学校,システム開発,ウェブサイトプロデュース,セキュリティ,セキュリティ診断,分散型keyバリューストア,ネットショップ" />
+<?php $this->headLink()->appendStylesheet('/sp/css/redmond/jquery-ui-1.8.21.custom.css'); ?>
+<?php $this->headLink()->appendStylesheet('/sp/css/login.css'); ?>
+<?php echo $this->headLink() ?>
+<?php $this->headScript()->appendFile('/sp/js/jquery-1.7.2.min.js'); ?>
+<?php $this->headScript()->appendFile('/sp/js/jquery-ui-1.8.21.custom.min.js');  ?>
+<?php echo $this->headScript() ?>
+<title>セルフオーダー管理画面</title>
+</head>
+<body>
+<!-- start "login-form" -->
+	<div id="login-form">
+		<?php echo $this->layout()->content ?>
+    </div>
+    
+    <div id="footer">
+		<div>Copyright (C) <?php echo date('Y'); ?> Kobe Digital Labo, Inc. All rights Reserved.</div>
+	</div>
+</body>
+</html>

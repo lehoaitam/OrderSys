@@ -1,0 +1,122 @@
+<?php
+/**
+ * import product
+ * PHP version 5.3.9
+ * @author Nguyen Thi Tho
+ * @copyright Kobe Digital Labo, Inc
+ * @since 2012/07/26
+ */
+?>
+<?php if (!empty($this->message)) : ?>
+    <?php if ($this->success) : ?>
+        <div style="padding: 0.3em;" class="ui-state-highlight ui-corner-all"> 
+            <span style="float: left; margin-right: .3em; height: 15px" class="ui-icon ui-icon-info"></span>
+            <ul id="error_list" class="error_list">
+                <?php foreach ($this->message as $msg): ?>
+                    <li><?php echo $this->escape($msg); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <div class="clear"></div>
+    <?php else : ?>
+        <div style="padding:0.3em;color:red" class="ui-state-error ui-corner-all">
+            <strong>下記のエラーが発生しました。</strong>
+            <span style="float: left; margin-right: .3em;height:15px" class="ui-icon ui-icon-alert"></span>
+            <ul class="error_list">
+                <?php foreach ($this->message as $msg): ?>
+                    <li><?php echo $this->escape($msg); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <div class="clear"></div>
+    <?php endif; ?>
+<?php endif; ?>
+
+<div class="ui-tabs ui-widget ui-widget-content-bg ui-corner-all">    
+    <div class="form-header">サブコメント取込</div>
+    <div class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+        <form name="frm_upload" id="frm_upload" method="post" enctype="multipart/form-data">
+            <?php echo $this->csrf; ?>
+            <ul class="form-list">            
+                <li>
+                    <div>
+                        <label><strong>CSVデータを取り込む</strong></label>
+                    </div>
+                    <div class="clear"></div>
+                </li>
+                <li>
+                    <div class="col-a-form" style="width:100px">
+                        <label class="required">CSVファイル</label>
+                    </div>
+                    <div class="col-b-import">
+                        <input id="page_csv" type="file" name="page_csv" class="input" size="60"><br>
+                    </div>
+                    <div class="clear"></div>
+                </li>
+                <li>
+                    <div class="col-a-eimport">&nbsp;</div>
+                    <div class="col-b-import">
+                        <?php echo $this->formRadio('upload_type', $this->importTypeDefault, null, $this->importType) ?>
+                    </div>
+                    <div class="clear"></div>
+                </li>
+                <li>
+                    <div class="col-a-eimport">&nbsp;</div>
+                    <div class="col-b-import">
+                        <input id="uploadcsv" type="button" class="ui-button ui-widget ui-state-default ui-corner-all" role="button" 
+                               aria-disabled="false" value="アップロード" onclick="uploadCsv()"/>
+                    </div>
+                    <div class="clear"></div>
+                    <div>&nbsp;</div>
+                </li>
+                <li>
+                    <div>
+                        <label><strong>CSVデータをダウンロード</strong></label>
+                    </div>
+                    <div class="clear"></div>
+                </li>
+                <li>
+                    <div class="col-a-eimport">&nbsp;</div>
+                    <div class="col-b-import">
+                        <input id="download" type="button" class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" value="ダウンロード" onclick="downloadCsv()"/>
+                    </div>
+                    <div class="clear"></div>
+                </li>
+            </ul>
+        </form>
+    </div>
+</div>
+<script>
+    var frm_upload = '#frm_upload';
+
+    function uploadCsv(){
+        if (validateForm() == true) {
+            if (!confirm('<?php echo $this->confiemImpCsv; ?>')) return;
+            $(frm_upload).attr('action', '/subcomment/uploadcsv');
+            $(frm_upload).submit();
+        }
+    }
+    
+    function validateForm() {
+        if ($('#page_csv').val() == ''){
+            alert('<?php echo $this->alertImp; ?>');
+            return false;
+        }
+        
+        // CSVアップロード処理
+        if ($('input[name=upload_type]:checked').val() == undefined){
+            alert('<?php echo $this->alertImportType; ?>');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function downloadCsv() {
+        $(frm_upload).attr('action', '/subcomment/download-csv');
+        $(frm_upload).submit();
+    }
+</script>
+
+
+
